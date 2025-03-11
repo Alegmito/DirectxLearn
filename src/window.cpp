@@ -1,6 +1,7 @@
 #include "window.h"
 #include <basetsd.h>
 #include <winuser.h>
+#include <sstream>
 
 Window::WindowConfig Window::WindowConfig::windowConfigSingleton;
 
@@ -54,8 +55,8 @@ Window::~Window() {
 
 LRESULT WINAPI Window::handleMessageSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (msg == WM_NCCREATE) {
-        const CREATESTRUCTW *const create {reinterpret_cast<CREATESTRUCTW *>(lParam)};
-        Window *const window {static_cast<class Window *>(create->lpCreateParams)};
+        auto create {reinterpret_cast<CREATESTRUCTW *>(lParam)};
+        auto window {static_cast<class Window *>(create->lpCreateParams)};
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
         SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::handleMessageThunk));
         return window->handleMessage(hWnd, msg, wParam, lParam);
@@ -69,16 +70,18 @@ LRESULT CALLBACK Window::handleMessageThunk(HWND hWnd, UINT msg, WPARAM wParam, 
 }
 
 
-LRESULT handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    static std::string char_title;
     switch (msg) {
         case WM_CLOSE: {
-        PostQuitMessage(69);
-        break;
+        PostQuitMessage(0);
+        return 0;
         }
         case WM_KEYDOWN: {
         if (wParam == 'F') {
             SetWindowText(hWnd, "Respects");
             break;
+        }
         }
         case WM_KEYUP: {
         if (wParam == 'F') {
@@ -98,6 +101,6 @@ LRESULT handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             oss <<  "(" << points.x << "," << points.y << ")";
             SetWindowText(hWnd, oss.str().c_str());
         }
-
     }
+    return DefWindowProc(hWnd, msg, wParam, lParam);
 }
