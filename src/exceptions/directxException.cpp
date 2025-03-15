@@ -8,8 +8,8 @@ const char *DirectxException::what() const noexcept {
     std::ostringstream oss {};
     oss << getType() << std::endl
         << getOriginString();
-    whatBuffer = oss.str();
-    return whatBuffer.c_str();
+    whatBuffer_ = oss.str();
+    return whatBuffer_.c_str();
 }
 const char *DirectxException::getType() const noexcept {
     return "DirectX exception";

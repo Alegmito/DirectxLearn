@@ -14,5 +14,5 @@ private:
     int line_;
     std::string file_;
 protected:
-    mutable std::string whatBuffer {};
+    mutable std::string whatBuffer_ {};
 };

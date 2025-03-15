@@ -1,9 +1,13 @@
 add_executable(${PROJECT_NAME} WIN32)
 
 target_sources(${PROJECT_NAME} PUBLIC 
-    window.h    
+    window.h
     window.cpp
     main.cpp
+    exceptions/directxException.cpp
+    exceptions/directxException.h
+    exceptions/windowException.h
+    exceptions/windowException.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
