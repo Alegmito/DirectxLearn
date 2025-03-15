@@ -36,6 +36,7 @@ std::string WindowException::TranslateErrorCode (HRESULT hr) {
     }
     std::string errorStr {pMsgBuff};
     LocalFree(pMsgBuff);
+    return errorStr.c_str();
 }
 
 std::string WindowException::getErrorString() const noexcept {

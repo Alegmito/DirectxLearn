@@ -1,4 +1,5 @@
 #include "window.h"
+#include "exceptions/windowException.h"
 #include <basetsd.h>
 #include <winuser.h>
 #include <sstream>
@@ -31,13 +32,15 @@ const char *Window::WindowConfig::getName() noexcept {return windowClassName.dat
 
 HINSTANCE Window::WindowConfig::getInstance() noexcept { return windowConfigSingleton.hInst_; }
 
-Window::Window(int width, int height, const char *name) noexcept {
+Window::Window(int width, int height, const char *name) {
     RECT wr {};
     wr.left = 100;
     wr.right = width + wr.left;
     wr.top = 100;
     wr.bottom = height + wr.left;
     AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, false);
+
+    throw Window_Except( ERROR_ARENA_TRASHED );
 
     HWND hWnd_ {CreateWindow(
         WindowConfig::getName(), name,
