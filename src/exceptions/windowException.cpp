@@ -1,9 +1,20 @@
 #include "windowException.h"
 #include "directxException.h"
+#include <errhandlingapi.h>
 #include <sstream>
 #include <string_view>
 #include <winbase.h>
 #include <winnt.h>
+
+WindowException::WindowException(HRESULT hr) noexcept
+    : DirectxException(__LINE__, __FILE__)
+    , hr_(hr)
+{}
+
+WindowException::WindowException() noexcept
+    : DirectxException(__LINE__, __FILE__)
+    , hr_(GetLastError())
+{}
 
 WindowException::WindowException(int line, const char *fileName, HRESULT hr) noexcept
     : DirectxException(line, fileName)
@@ -36,6 +47,7 @@ std::string WindowException::TranslateErrorCode (HRESULT hr) {
     }
     std::string errorStr {pMsgBuff};
     LocalFree(pMsgBuff);
+    return errorStr.c_str();
 }
 
 std::string WindowException::getErrorString() const noexcept {

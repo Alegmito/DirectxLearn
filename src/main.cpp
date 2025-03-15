@@ -2,7 +2,7 @@
 #include <minwindef.h>
 #include <windef.h>
 #include <winuser.h>
-#include "exceptions/directxException.h"
+#include "exceptions/windowException.h"
 #include "window.h"
 
 constexpr auto pClassName {"directxLearn"};
