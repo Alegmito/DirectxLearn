@@ -1,5 +1,6 @@
 #pragma once
-#include "keyboardController.h"
+#include "controls/keyboardController.h"
+#include "controls/mouseController.h"
 #include <Windows.h>
 #include <minwindef.h>
 #include <string_view>
@@ -25,6 +26,8 @@ public:
     Window(const Window &) = delete;
     Window & operator=(const Window &) = delete;
     KeyboardController keyboard_ {};
+    MouseController mouse_ {};
+    void setTitle(const std::string &title);
 private:
     static LRESULT CALLBACK handleMessageSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK handleMessageThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

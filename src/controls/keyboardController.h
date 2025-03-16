@@ -60,7 +60,7 @@ public:
     void onKeyPressed(unsigned char keycode) noexcept;
     void onKeyReleased(unsigned char keycode) noexcept;
     void onChar(int8_t ch) noexcept;
-    void ClearState() noexcept;
+    void clearState() noexcept;
     template<class T>
     static void trimBuffer(std::queue<T> &buffer) noexcept;
 private:

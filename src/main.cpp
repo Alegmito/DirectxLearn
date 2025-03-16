@@ -16,8 +16,8 @@ int CALLBACK WinMain(HINSTANCE , HINSTANCE , LPSTR , int ) {
         while ((gResult = GetMessage(&message, nullptr, 0, 0)) > 0) {
             TranslateMessage(&message);
             DispatchMessage(&message);
-            if (window.keyboard_.isKeyPressed(VK_SPACE)) {
-                MessageBox(nullptr, "Something happenned!", "Space key was pressed", MB_OK | MB_ICONEXCLAMATION);
+            if (window.keyboard_.isKeyPressed(VK_MENU)) {
+                MessageBox(nullptr, "Something happenned!", "Alt key was pressed", MB_OK | MB_ICONEXCLAMATION);
             }
         }
 

@@ -48,7 +48,7 @@ void KeyboardController::onChar(int8_t ch) noexcept {
     trimBuffer(charbuffer_);
 }
 
-void KeyboardController::ClearState() noexcept {
+void KeyboardController::clearState() noexcept {
     keystates_.reset();
 }
 

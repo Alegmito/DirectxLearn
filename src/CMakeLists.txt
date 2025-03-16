@@ -1,11 +1,14 @@
 add_executable(${PROJECT_NAME} WIN32)
 
 target_sources(${PROJECT_NAME} PUBLIC 
-    keyboardController.h
-    keyboardController.cpp
     window.h
     window.cpp
     main.cpp
+    controls/keyboardController.h
+    controls/keyboardController.cpp
+    controls/mouseController.cpp
+    controls/mouseController.h
+    controls/mouseEvent.h
     exceptions/directxException.cpp
     exceptions/directxException.h
     exceptions/windowException.h

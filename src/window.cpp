@@ -2,6 +2,8 @@
 #include "exceptions/windowException.h"
 #include "resources.h"
 #include <basetsd.h>
+#include <errhandlingapi.h>
+#include <wingdi.h>
 #include <winuser.h>
 #include <sstream>
 
@@ -27,6 +29,7 @@ Window::WindowConfig::WindowConfig() noexcept
     };
 }
 
+
 Window::WindowConfig::~WindowConfig() {
     UnregisterClass(windowClassName.data(), getInstance());
 }
@@ -35,13 +38,21 @@ const char *Window::WindowConfig::getName() noexcept {return windowClassName.dat
 
 HINSTANCE Window::WindowConfig::getInstance() noexcept { return windowConfigSingleton.hInst_; }
 
-Window::Window(int width, int height, const char *name) {
+void Window::setTitle(const std::string &title) {
+    if (!SetWindowText(hWnd_, title.c_str())) {
+        throw GetLastError();
+    }
+}
+
+Window::Window(int width, int height, const char *name) 
+    : width_(width), height_(height)
+{
     RECT wr {};
     wr.left = 100;
     wr.right = width + wr.left;
     wr.top = 100;
     wr.bottom = height + wr.left;
-    if (FAILED(AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, false))) {
+    if (!AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, false)) {
         throw WindowException();
     }
 
@@ -83,19 +94,26 @@ LRESULT CALLBACK Window::handleMessageThunk(HWND hWnd, UINT msg, WPARAM wParam, 
 LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     static std::string char_title;
     switch (msg) {
+        case WM_KILLFOCUS:
+            keyboard_.clearState();
+            break;
         case WM_CLOSE: {
         PostQuitMessage(0);
         return 0;
         }
-        case WM_KEYDOWN: {
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN: {
+            if ((lParam & 0x40000000) == 1 && !keyboard_.isAutorepeat()) 
+                break;
 
             if (wParam == 'F') {
                 SetWindowText(hWnd, "Respects");
             }
             keyboard_.onKeyPressed(wParam);
-                break;
+            break;
         }
-        case WM_KEYUP: {
+        case WM_KEYUP:
+        case WM_SYSKEYUP: {
             if (wParam == 'F') {
                 SetWindowText(hWnd, "DangerField");
                 SetWindowText(hWnd, char_title.c_str());
@@ -114,6 +132,38 @@ LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             std::ostringstream oss {};
             oss <<  "(" << points.x << "," << points.y << ")";
             SetWindowText(hWnd, oss.str().c_str());
+            mouse_.onLeftPressed(points.x, points.y);
+            break;
+        }
+        case WM_MOUSEMOVE: {
+            auto points {MAKEPOINTS(lParam)};
+            mouse_.onMouseMove(points.x, points.y);
+            break;
+        }
+        case WM_LBUTTONUP: {
+            auto points {MAKEPOINTS(lParam)};
+            mouse_.onLeftReleased(points.x, points.y);
+            break;
+        }
+        case WM_RBUTTONUP: {
+            auto points {MAKEPOINTS(lParam)};
+            mouse_.onRightReleased(points.x, points.y);
+            break;
+        }
+        case WM_RBUTTONDOWN: {
+            auto points {MAKEPOINTS(lParam)};
+            mouse_.onRightPressed(points.x, points.y);
+            break;
+        }
+        case WM_MOUSEHWHEEL: {
+            auto points {MAKEPOINTS(lParam)};
+            const auto wheelDelta {GET_WHEEL_DELTA_WPARAM(wParam)};
+            if (wheelDelta > 0) {
+                mouse_.onWheelUp(points.x, points.y);
+            } else if (wheelDelta < 0) {
+                mouse_.onWheelDown(points.x, points.y);
+            }
+            break;
         }
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
