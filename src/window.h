@@ -1,4 +1,5 @@
 #pragma once
+#include "keyboardController.h"
 #include <Windows.h>
 #include <minwindef.h>
 #include <string_view>
@@ -23,6 +24,7 @@ public:
     ~Window();
     Window(const Window &) = delete;
     Window & operator=(const Window &) = delete;
+    KeyboardController keyboard_ {};
 private:
     static LRESULT CALLBACK handleMessageSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK handleMessageThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

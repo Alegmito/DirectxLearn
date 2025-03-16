@@ -1,5 +1,6 @@
 #include "window.h"
 #include "exceptions/windowException.h"
+#include "resources.h"
 #include <basetsd.h>
 #include <winuser.h>
 #include <sstream>
@@ -17,6 +18,8 @@ Window::WindowConfig::WindowConfig() noexcept
     wc.hInstance = getInstance();
     wc.lpszClassName = getName();
     wc.hbrBackground = nullptr;
+    wc.hIcon = LoadIcon(getInstance(), MAKEINTRESOURCE(DIRECTX_APP_ICON));
+    wc.hIconSm = LoadIcon(getInstance(), MAKEINTRESOURCE(DIRECTX_APP_ICON));
 
     if (!RegisterClassEx(&wc)) {
         MessageBox(nullptr, "Window registration failed", "Error", MB_ICONEXCLAMATION | MB_OK);
@@ -85,21 +88,25 @@ LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
         }
         case WM_KEYDOWN: {
-        if (wParam == 'F') {
-            SetWindowText(hWnd, "Respects");
-            break;
-        }
+
+            if (wParam == 'F') {
+                SetWindowText(hWnd, "Respects");
+            }
+            keyboard_.onKeyPressed(wParam);
+                break;
         }
         case WM_KEYUP: {
-        if (wParam == 'F') {
-            SetWindowText(hWnd, "DangerField");
-            SetWindowText(hWnd, char_title.c_str());
+            if (wParam == 'F') {
+                SetWindowText(hWnd, "DangerField");
+                SetWindowText(hWnd, char_title.c_str());
+            }
+            keyboard_.onKeyReleased(wParam);
             break;
-        }
         }
         case WM_CHAR: {
             char_title.push_back((char)wParam);
             SetWindowText(hWnd, char_title.c_str());
+            keyboard_.onChar(wParam);
             break;
         }
         case WM_LBUTTONDOWN: {
