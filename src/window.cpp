@@ -137,7 +137,21 @@ LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         case WM_MOUSEMOVE: {
             auto points {MAKEPOINTS(lParam)};
-            mouse_.onMouseMove(points.x, points.y);
+            if (points.x >= 0 && points.x < width_ && points.y >= 0 && points.y < height_) {
+                mouse_.onMouseMove(points.x, points.y);
+                if (!mouse_.isInWindow()) {
+                    SetCapture(hWnd_);
+                    mouse_.onMouseEnter();
+                }
+
+            } else {
+                if (mouse_.getState().isLeftPressed || mouse_.getState().isRightPressed) {
+                    mouse_.onMouseMove(points.x, points.y);
+                } else {
+                    ReleaseCapture();
+                    mouse_.onMouseLeave();
+                }
+            }
             break;
         }
         case WM_LBUTTONUP: {
@@ -158,12 +172,7 @@ LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_MOUSEHWHEEL: {
             auto points {MAKEPOINTS(lParam)};
             const auto wheelDelta {GET_WHEEL_DELTA_WPARAM(wParam)};
-            if (wheelDelta > 0) {
-                mouse_.onWheelUp(points.x, points.y);
-            } else if (wheelDelta < 0) {
-                mouse_.onWheelDown(points.x, points.y);
-            }
-            break;
+            mouse_.onWheelDelta(points.x, points.y, wheelDelta);
         }
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);

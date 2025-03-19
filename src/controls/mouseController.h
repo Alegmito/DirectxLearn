@@ -19,12 +19,17 @@ public:
     void onRightReleased(int x, int y) noexcept;
     void onWheelUp(int x, int y) noexcept;
     void onWheelDown(int x, int y) noexcept;
+    void onWheelDelta(int x, int y, int delta) noexcept;
     void trimBuffer() noexcept;
+    void onMouseLeave() noexcept;
+    void onMouseEnter() noexcept;
+    bool isInWindow() noexcept {return isInWindow_;}
 
     MouseState &getState() noexcept {return state_;}
 private:
     static constexpr unsigned int bufferSize {16};
-    MouseState state_;
+    MouseState state_ {};
     std::queue<MouseEvent> buffer_;
+    bool isInWindow_ {false};
+    int wheelDeltaCarry_ {};
 };
-

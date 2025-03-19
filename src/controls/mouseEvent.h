@@ -19,6 +19,8 @@ public:
         wheelUp,
         wheelDown,
         move,
+        enter,
+        leave,
         invalid
     };
 
@@ -27,7 +29,7 @@ public:
         state_ {state}
     {}
     MouseState &getState() noexcept {return state_;}
-    Type getType() {return type_;}
+    Type getType() const {return type_;}
 private:
     Type type_;
     MouseState state_;

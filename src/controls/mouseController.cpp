@@ -1,6 +1,6 @@
 #include "mouseController.h"
 #include <optional>
-
+#include <Windows.h>
 
 std::optional<MouseEvent> MouseController::Read() noexcept {
     if (buffer_.size() > 0) {
@@ -66,3 +66,26 @@ void MouseController::trimBuffer() noexcept {
     for (; buffer_.size() > bufferSize; buffer_.pop());
 }
 
+void MouseController::onMouseLeave() noexcept {
+    isInWindow_ = false;
+    buffer_.push({MouseEvent(MouseEvent::Type::leave, getState())});
+    trimBuffer();
+}
+
+void MouseController::onMouseEnter() noexcept {
+    isInWindow_ = true;
+    buffer_.push({MouseEvent(MouseEvent::Type::enter, getState())});
+    trimBuffer();
+}
+
+void MouseController::onWheelDelta(int x, int y, int delta) noexcept {
+    wheelDeltaCarry_ += delta;
+    while(wheelDeltaCarry_ >= WHEEL_DELTA) {
+        wheelDeltaCarry_ -= WHEEL_DELTA;
+        onWheelUp(x, y);
+    }
+    while(wheelDeltaCarry_ >= -WHEEL_DELTA) {
+        wheelDeltaCarry_ += WHEEL_DELTA;
+        onWheelDown(x, y);
+    }
+}

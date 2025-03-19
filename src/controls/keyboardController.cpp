@@ -56,3 +56,4 @@ template<typename T>
 void KeyboardController::trimBuffer(std::queue<T> &buffer) noexcept {
     for (; buffer.size() > bufferSize; buffer.pop());
 }
+

@@ -1,9 +1,30 @@
 #include <Windows.h>
 #include <minwindef.h>
+#include <sstream>
 #include <windef.h>
 #include <winuser.h>
+#include "controls/mouseEvent.h"
 #include "exceptions/directxException.h"
 #include "window.h"
+
+void processMouse(Window &window) {
+    const auto e {window.mouse_.Read()};
+    if (!e.has_value()) {
+        return;
+    }
+
+    switch (e.value().getType()) {
+        case MouseEvent::Type::leave:
+            window.setTitle("Gone!");
+            break;
+        case MouseEvent::Type::move: {
+            std::ostringstream oss {};
+            oss << "Mouse moved to (" << window.mouse_.getState().x << "," << window.mouse_.getState().y << ")";
+            window.setTitle(oss.str());
+            break;
+        }
+    }
+}
 
 constexpr auto pClassName {"directxLearn"};
 int CALLBACK WinMain(HINSTANCE , HINSTANCE , LPSTR , int ) {
@@ -18,6 +39,9 @@ int CALLBACK WinMain(HINSTANCE , HINSTANCE , LPSTR , int ) {
             DispatchMessage(&message);
             if (window.keyboard_.isKeyPressed(VK_MENU)) {
                 MessageBox(nullptr, "Something happenned!", "Alt key was pressed", MB_OK | MB_ICONEXCLAMATION);
+            }
+            if (!window.mouse_.isEmpty()) {
+                processMouse(window);
             }
         }
 
