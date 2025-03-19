@@ -13,6 +13,7 @@ void processMouse(Window &window) {
         return;
     }
 
+    static int i {};
     switch (e.value().getType()) {
         case MouseEvent::Type::leave:
             window.setTitle("Gone!");
@@ -22,6 +23,16 @@ void processMouse(Window &window) {
             oss << "Mouse moved to (" << window.mouse_.getState().x << "," << window.mouse_.getState().y << ")";
             window.setTitle(oss.str());
             break;
+        }
+        case MouseEvent::Type::wheelUp: {
+            std::ostringstream oss {};
+            oss << "WheelUp: " << i;
+            window.setTitle(oss.str());
+        }
+        case MouseEvent::Type::wheelDown: {
+            std::ostringstream oss {};
+            oss << "WheelDown: " << i;
+            window.setTitle(oss.str());
         }
     }
 }
