@@ -1,5 +1,5 @@
 #include "app.h"
-#include "Window.h"
+#include "window.h"
 #include <Windows.h>
 #include <sstream>
 
@@ -22,12 +22,14 @@ void processMouse(Window &window) {
         // }
         case MouseEvent::Type::wheelUp: {
             std::ostringstream oss {};
+            ++i;
             oss << "WheelUp: " << i;
             window.setTitle(oss.str());
             break;
         }
         case MouseEvent::Type::wheelDown: {
             std::ostringstream oss {};
+            --i;
             oss << "WheelDown: " << i;
             window.setTitle(oss.str());
             break;
@@ -35,8 +37,9 @@ void processMouse(Window &window) {
     }
 }
 
+constexpr auto pClassName {"DirectX Learn"};
 App::App()
-    : window_(800, 600, "DirectX Learn")
+    : window_(800, 600, pClassName)
 {}
 int App::Run() {
     MSG message {};
@@ -60,5 +63,6 @@ int App::Run() {
     return message.wParam;
 
 }
+
 void App::Tick() {
 }

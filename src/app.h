@@ -1,5 +1,5 @@
-#pragma once;
-#include "Window.h"
+#pragma once
+#include "window.h"
 
 class App {
 public:

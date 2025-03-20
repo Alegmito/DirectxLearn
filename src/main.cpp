@@ -3,7 +3,6 @@
 #include "exceptions/directxException.h"
 
 
-constexpr auto pClassName {"directxLearn"};
 int CALLBACK WinMain(HINSTANCE , HINSTANCE , LPSTR , int ) {
     try {
         App {}.Run();

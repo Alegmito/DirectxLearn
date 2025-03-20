@@ -173,6 +173,7 @@ LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             auto points {MAKEPOINTS(lParam)};
             const auto wheelDelta {GET_WHEEL_DELTA_WPARAM(wParam)};
             mouse_.onWheelDelta(points.x, points.y, wheelDelta);
+            break;
         }
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);

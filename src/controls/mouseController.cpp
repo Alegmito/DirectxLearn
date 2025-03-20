@@ -80,7 +80,7 @@ void MouseController::onWheelDelta(int x, int y, int delta) noexcept {
         wheelDeltaCarry_ -= WHEEL_DELTA;
         onWheelUp(x, y);
     }
-    while(wheelDeltaCarry_ >= -WHEEL_DELTA) {
+    while(wheelDeltaCarry_ <= -WHEEL_DELTA) {
         wheelDeltaCarry_ += WHEEL_DELTA;
         onWheelDown(x, y);
     }
