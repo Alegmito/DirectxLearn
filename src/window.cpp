@@ -169,7 +169,7 @@ LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             mouse_.onRightPressed(points.x, points.y);
             break;
         }
-        case WM_MOUSEHWHEEL: {
+        case WM_MOUSEWHEEL: {
             auto points {MAKEPOINTS(lParam)};
             const auto wheelDelta {GET_WHEEL_DELTA_WPARAM(wParam)};
             mouse_.onWheelDelta(points.x, points.y, wheelDelta);

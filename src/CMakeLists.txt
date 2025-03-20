@@ -4,6 +4,8 @@ target_sources(${PROJECT_NAME} PUBLIC
     window.h
     window.cpp
     main.cpp
+    app.h
+    app.cpp
     controls/keyboardController.h
     controls/keyboardController.cpp
     controls/mouseController.cpp

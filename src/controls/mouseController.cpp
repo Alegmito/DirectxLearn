@@ -48,15 +48,11 @@ void MouseController::onRightReleased(int, int) noexcept {
 }
 
 void MouseController::onWheelUp(int, int) noexcept {
-    state_.isLeftPressed = true;
-
     buffer_.push({MouseEvent(MouseEvent::Type::wheelUp, getState())});
     trimBuffer();
 }
 
 void MouseController::onWheelDown(int, int) noexcept {
-    state_.isLeftPressed = true;
-
     buffer_.push({MouseEvent(MouseEvent::Type::wheelDown, getState())});
     trimBuffer();
 }
