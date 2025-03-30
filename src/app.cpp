@@ -1,6 +1,9 @@
 #include "app.h"
 #include "window.h"
 #include <Windows.h>
+#include <iomanip>
+#include <ios>
+#include <optional>
 #include <sstream>
 
 void processMouse(Window &window) {
@@ -41,28 +44,16 @@ constexpr auto pClassName {"DirectX Learn"};
 App::App()
     : window_(800, 600, pClassName)
 {}
+
 int App::Run() {
-    MSG message {};
-    BOOL gResult {};
-
-    while ((gResult = GetMessage(&message, nullptr, 0, 0)) > 0) {
-        TranslateMessage(&message);
-        DispatchMessage(&message);
-        if (window_.keyboard_.isKeyPressed(VK_MENU)) {
-            MessageBox(nullptr, "Something happenned!", "Alt key was pressed", MB_OK | MB_ICONEXCLAMATION);
-        }
-        if (!window_.mouse_.isEmpty()) {
-            processMouse(window_);
-        }
+    for (std::optional<int> eCode {std::nullopt};;) {
+        if (eCode = Window::processMessage(); eCode.has_value()) {return eCode.value();}
+        Tick();
     }
-
-    if (gResult == 1) {
-        return -1;
-    }
-
-    return message.wParam;
-
 }
 
 void App::Tick() {
+    std::ostringstream oss {};
+    oss << "Delta time: "<< std::setprecision(2) << std::fixed << timer.peek() << "s";
+    window_.setTitle(oss.str());
 }

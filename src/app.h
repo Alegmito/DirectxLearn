@@ -1,4 +1,5 @@
 #pragma once
+#include "directxTimer.h"
 #include "window.h"
 
 class App {
@@ -8,4 +9,5 @@ public:
 private:
     void Tick();
     Window window_;
+    DirectxTimer timer {};
 };

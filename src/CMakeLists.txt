@@ -6,6 +6,8 @@ target_sources(${PROJECT_NAME} PUBLIC
     main.cpp
     app.h
     app.cpp
+    directxTimer.h
+    directxTimer.cpp
     controls/keyboardController.h
     controls/keyboardController.cpp
     controls/mouseController.cpp

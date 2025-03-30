@@ -28,6 +28,7 @@ public:
     KeyboardController keyboard_ {};
     MouseController mouse_ {};
     void setTitle(const std::string &title);
+    static std::optional<int> processMessage();
 private:
     static LRESULT CALLBACK handleMessageSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK handleMessageThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
