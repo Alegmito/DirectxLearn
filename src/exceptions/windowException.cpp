@@ -53,3 +53,7 @@ std::string WindowException::TranslateErrorCode (HRESULT hr) {
 std::string WindowException::getErrorString() const noexcept {
     return TranslateErrorCode(hr_);
 }
+
+const char *NoGraphicsException::getType() const noexcept {
+ 	return "Directx Window Exception [No Graphics]";
+}

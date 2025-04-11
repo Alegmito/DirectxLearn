@@ -68,6 +68,8 @@ Window::Window(int width, int height, const char *name)
     }
 
     ShowWindow(hWnd_, SW_SHOWDEFAULT);    
+
+    graphics_ = std::make_unique<Graphics>(hWnd_);
 }
 
 Window::~Window() {
@@ -191,4 +193,12 @@ std::optional<int> Window::processMessage() {
     }
 
     return {};
+}
+
+Graphics &Window::getGraphics() {
+    if (!graphics_) {
+        throw no_graphics_exception();
+    }
+
+    return *graphics_;
 }

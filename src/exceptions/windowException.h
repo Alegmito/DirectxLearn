@@ -17,3 +17,14 @@ private:
     HRESULT hr_;
 
 };
+
+#define window_except(hr) WindowException (__LINE__,__FILE__,(hr))
+#define window_last_except() WindowException (__LINE__,__FILE__,GetLastError())
+
+class NoGraphicsException : public DirectxException {
+public:
+    using DirectxException::DirectxException;
+    const char *getType() const noexcept override;
+};
+
+#define no_graphics_exception() NoGraphicsException(__LINE__,__FILE__)

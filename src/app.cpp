@@ -1,6 +1,7 @@
 #include "app.h"
 #include "window.h"
 #include <Windows.h>
+#include <cmath>
 #include <iomanip>
 #include <ios>
 #include <optional>
@@ -53,7 +54,10 @@ int App::Run() {
 }
 
 void App::Tick() {
-    std::ostringstream oss {};
-    oss << "Delta time: "<< std::setprecision(2) << std::fixed << timer.peek() << "s";
-    window_.setTitle(oss.str());
+    // std::ostringstream oss {};
+    // oss << "Delta time: "<< std::setprecision(2) << std::fixed << timer.peek() << "s";
+    // window_.setTitle(oss.str());
+    const float sinTime = sin(timer.peek()) / 2.0f + 0.5f;
+    window_.getGraphics().clearbuffer(sinTime, sinTime, 1.0f);
+    window_.getGraphics().createEndFrame();
 }

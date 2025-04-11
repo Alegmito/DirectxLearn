@@ -19,6 +19,15 @@ target_sources(${PROJECT_NAME} PUBLIC
     exceptions/windowException.cpp
     resources.h
     resources.rc
+    graphics/graphics.h
+    graphics/graphics.cpp
+    graphics/exceptions/dxerr.h
+    graphics/exceptions/dxerr.cpp
+    graphics/exceptions/DXTrace.inl
+    graphics/exceptions/DXGetErrorDescription.inl
+    graphics/exceptions/DXGetErrorString.inl
+    graphics/exceptions/graphicsException.h
+    graphics/exceptions/graphicsException.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
