@@ -28,6 +28,8 @@ target_sources(${PROJECT_NAME} PUBLIC
     graphics/exceptions/DXGetErrorString.inl
     graphics/exceptions/graphicsException.h
     graphics/exceptions/graphicsException.cpp
+    logger/dxgiLogger.h
+    logger/dxgiLogger.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")

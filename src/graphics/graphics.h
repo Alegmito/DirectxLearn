@@ -1,25 +1,30 @@
 #pragma once
 #include <d3d11.h>
 #include <Windows.h>
+#include "../logger/dxgiLogger.h"
+#include <wrl.h>
+#include <wrl/client.h>
 
 #pragma comment(lib, "d3d11.lib")
 
+    namespace mWrl = Microsoft::WRL;
 class Graphics {
 public:
+
     Graphics(HWND hWnd);
     Graphics(const Graphics&) = delete;
     Graphics &operator=(const Graphics&) = delete;
-    ~Graphics();
+    virtual ~Graphics() {};
     void createEndFrame();
-    void clearbuffer (float r, float g, float b) noexcept {
-        const float color[] = {r, g, b, 1.0f};
-        context_->ClearRenderTargetView(renderTargetView_, color);
-    }
+    void clearbuffer(float r, float g, float b) noexcept;
 private:
     void throwGraphicsError(HRESULT hr);
-    ID3D11Device *device_ {};
-    IDXGISwapChain *swap_ {};
-    ID3D11DeviceContext *context_ {};
-    ID3D11RenderTargetView *renderTargetView_ {};
+    mWrl::ComPtr<ID3D11Device> device_ {};
+    mWrl::ComPtr<IDXGISwapChain> swap_ {};
+    mWrl::ComPtr<ID3D11DeviceContext> context_ {};
+    mWrl::ComPtr<ID3D11RenderTargetView> renderTargetView_ {};
 
+    #ifndef NDEBUG
+    DxgiInfo infoManager_ {};
+    #endif
 };

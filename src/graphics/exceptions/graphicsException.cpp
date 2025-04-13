@@ -2,11 +2,19 @@
 #include "dxerr.h"
 #include <cstdint>
 #include <ios>
+#include <oleauto.h>
 #include <sstream>
 
-HResultException::HResultException( int line,const char* file,HRESULT hr ) noexcept
-    : DirectxException{line, file}, hr_ {hr}
-{}
+HResultException::HResultException( int line,const char* file,HRESULT hr, std::vector<std::string> msgs) noexcept
+    : GraphicsException{line, file}, hr_ {hr}
+{
+    for (auto &m : msgs) {
+        info_ += m;
+        info_ += '\n';
+    }
+
+    if(!info_.empty()) { info_.pop_back(); }
+}
 
 const char* HResultException::what() const noexcept  {
     std::ostringstream oss {};
@@ -14,8 +22,14 @@ const char* HResultException::what() const noexcept  {
         << "[Error Code] 0x" << std::hex << std::uppercase << getErrorCode()
         << std::dec << " (" << static_cast<uint32_t>(getErrorCode()) << ")" << std::endl
         << "[Error String] " << getErrorString() << std::endl
-        << "[Description] " << getErrorDescription() << std::endl
-        << getOriginString();
+        << "[Description] " << getErrorDescription() << std::endl;
+
+    if (!info_.empty()) {
+        oss << "\n[Error Info]\n" << getInfo() << std::endl << std::endl;
+    }
+
+    oss << getOriginString();
+
     whatBuffer_ = oss.str();
     return whatBuffer_.c_str();
 }
@@ -40,5 +54,5 @@ std::string HResultException::getErrorDescription() const noexcept {
 }
 
 const char* DeviceRemovedException::getType() const noexcept {
-    return "Directx Graphics Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED}";
+    return "Directx Graphics Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
 }

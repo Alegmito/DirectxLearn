@@ -17,5 +17,4 @@ int CALLBACK WinMain(HINSTANCE , HINSTANCE , LPSTR , int ) {
         MessageBox(nullptr, "No details avaliable", "Standard exception", MB_OK | MB_ICONEXCLAMATION);
     }
     return -1;
-
 }
