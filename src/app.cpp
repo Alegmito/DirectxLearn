@@ -58,6 +58,8 @@ void App::Tick() {
     // oss << "Delta time: "<< std::setprecision(2) << std::fixed << timer.peek() << "s";
     // window_.setTitle(oss.str());
     const float sinTime = sin(timer.peek()) / 2.0f + 0.5f;
-    window_.getGraphics().clearbuffer(sinTime, sinTime, 1.0f);
-    window_.getGraphics().createEndFrame();
+    auto &graphics {window_.getGraphics()};
+    graphics.clearbuffer(sinTime, sinTime, 1.0f);
+    graphics.drawTestTriangle();
+    graphics.createEndFrame();
 }

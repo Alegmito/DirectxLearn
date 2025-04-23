@@ -56,3 +56,41 @@ std::string HResultException::getErrorDescription() const noexcept {
 const char* DeviceRemovedException::getType() const noexcept {
     return "Directx Graphics Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
 }
+
+InfoException::InfoException( int line,const char * file,std::vector<std::string> infoMsgs ) noexcept
+ 	:
+ 	GraphicsException( line,file )
+ {
+ 	// join all info messages with newlines into single string
+ 	for( const auto& m : infoMsgs )
+ 	{
+ 		info_ += m;
+ 		info_.push_back( '\n' );
+ 	}
+ 	// remove final newline if exists
+ 	if( !info_.empty() )
+ 	{
+ 		info_.pop_back();
+ 	}
+ }
+ 
+ 
+ const char* InfoException::what() const noexcept
+ {
+ 	std::ostringstream oss;
+ 	oss << getType() << std::endl
+ 		<< "\n[Error Info]\n" << getInfo() << std::endl << std::endl;
+ 	oss << getOriginString();
+ 	whatBuffer_ = oss.str();
+ 	return whatBuffer_.c_str();
+ }
+ 
+ const char* InfoException::getType() const noexcept
+ {
+ 	return "Chili Graphics Info Exception";
+ }
+ 
+ std::string InfoException::getInfo() const noexcept
+ {
+ 	return info_;
+ }

@@ -28,6 +28,7 @@ target_sources(${PROJECT_NAME} PUBLIC
     graphics/exceptions/DXGetErrorString.inl
     graphics/exceptions/graphicsException.h
     graphics/exceptions/graphicsException.cpp
+    graphics/shaders/vertexShader.hlsl
     logger/dxgiLogger.h
     logger/dxgiLogger.cpp
 )
@@ -37,5 +38,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     kernel32.lib user32.lib gdi32.lib
     )
 endif()
+
+add_subdirectory(./graphics/shaders)
+add_dependencies(${PROJECT_NAME} shaders)
 
 file (COPY resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

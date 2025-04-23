@@ -30,3 +30,14 @@ public:
 private:
     std::string reason {};
 };
+
+class InfoException : public GraphicsException
+{
+public:
+    InfoException( int line,const char* file,std::vector<std::string> infoMsgs ) noexcept;
+    const char* what() const noexcept override;
+    const char* getType() const noexcept override;
+    std::string getInfo() const noexcept;
+private:
+    std::string info_;
+};

@@ -5,9 +5,6 @@
 #include <wrl.h>
 #include <wrl/client.h>
 
-#pragma comment(lib, "d3d11.lib")
-
-    namespace mWrl = Microsoft::WRL;
 class Graphics {
 public:
 
@@ -17,12 +14,13 @@ public:
     virtual ~Graphics() {};
     void createEndFrame();
     void clearbuffer(float r, float g, float b) noexcept;
+    void drawTestTriangle();
 private:
     void throwGraphicsError(HRESULT hr);
-    mWrl::ComPtr<ID3D11Device> device_ {};
-    mWrl::ComPtr<IDXGISwapChain> swap_ {};
-    mWrl::ComPtr<ID3D11DeviceContext> context_ {};
-    mWrl::ComPtr<ID3D11RenderTargetView> renderTargetView_ {};
+    Microsoft::WRL::ComPtr<ID3D11Device> device_ {};
+    Microsoft::WRL::ComPtr<IDXGISwapChain> swap_ {};
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> context_ {};
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView_ {};
 
     #ifndef NDEBUG
     DxgiInfo infoManager_ {};
