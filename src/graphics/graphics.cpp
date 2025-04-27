@@ -73,11 +73,18 @@ Graphics::Graphics(HWND hWnd) {
 }
 
 void Graphics::drawTestTriangle() {
-    struct Vertex {
-        float x;
-        float y;
-    };
+    struct Vertex { float x; float y; };
 
+    struct Color { float r; float g; float b; float a; };
+    struct Point { Vertex v; Color color; };
+
+
+    // 3) Create vertex buffer
+    /*std::array<Vertex, 3> vertices {{*/
+    /*    { {  0.0f,  0.5f}, {1,0,0,1} },*/
+    /*    { {  0.5f, -0.5f}, {0,1,0,1} },*/
+    /*    { { -0.5f, -0.5f}, {0,0,1,1} },*/
+    /*}};*/
     std::array<Vertex, 3> vertices {
         {{0.0f,  0.5f},
             {0.5f, -0.5f},
@@ -105,18 +112,51 @@ void Graphics::drawTestTriangle() {
     // Bind vertex buffer to pipeline
     const UINT strides {sizeof(Vertex)};
     const UINT offsets {};
-    context_->IASetVertexBuffers({}, 1, &vertexBuffer, &strides, &offsets);
+    context_->IASetVertexBuffers({}, 1, vertexBuffer.GetAddressOf(), &strides, &offsets);
 
-    mWrl::ComPtr<ID3DBlob> blob {};
+    mWrl::ComPtr<ID3DBlob> vsBlob {}, psBlob {};
     // Have to create Vertex and Pixel shaders
     mWrl::ComPtr<ID3D11VertexShader> vertexShader {};
-    GFX_THROW_INFO( D3DReadFileToBlob(L"vertexShader.cso", &blob));
+    GFX_THROW_INFO( D3DReadFileToBlob(L"vertexShader.cso", &vsBlob));
+    GFX_THROW_INFO(
+        device_->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader)
+    );
+    context_->VSSetShader(vertexShader.Get(), nullptr, 0u);
+
+    mWrl::ComPtr<ID3D11PixelShader> pixelShader {};
+    GFX_THROW_INFO( D3DReadFileToBlob(L"pixelShader.cso", &psBlob));
+    GFX_THROW_INFO(
+        device_->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader)
+    );
+    context_->PSSetShader(pixelShader.Get(), nullptr, 0u);
+
+    //
+    // Define input layout
+    
+    mWrl::ComPtr<ID3D11InputLayout> inputLayout {};
+    D3D11_INPUT_ELEMENT_DESC layoutDesc[] {
+        { "Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        /*{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },*/
+    };
 
     GFX_THROW_INFO(
-        device_->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vertexShader)
+    device_->CreateInputLayout(layoutDesc, _countof(layoutDesc),
+                              vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout)
     );
+    context_->IASetInputLayout(inputLayout.Get());
 
-    context_->VSSetShader(vertexShader.Get(), nullptr, 0u);
+    context_->OMSetRenderTargets(1u, renderTargetView_.GetAddressOf(), nullptr);
+
+    context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    
+    D3D11_VIEWPORT viewport {};
+    viewport.Width = 800,
+    viewport.Height = 600,
+    viewport.MinDepth = 0,
+    viewport.MaxDepth = 1,
+    viewport.TopLeftX = 0,
+    viewport.TopLeftY = 0;
+    context_->RSSetViewports(1u, &viewport);
 
     GFX_THROW_INFO_ONLY(context_->Draw(vertices.size(), 0u));
 }
