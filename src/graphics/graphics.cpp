@@ -2,6 +2,7 @@
 #include "exceptions/graphicsException.h"
 #include <d3d11.h>
 #include <d3dcommon.h>
+#include <dxgiformat.h>
 #include <wrl/client.h>
 #include <d3dcompiler.h>
 #include <array>
@@ -73,10 +74,10 @@ Graphics::Graphics(HWND hWnd) {
 }
 
 void Graphics::drawTestTriangle() {
-    struct Vertex { float x; float y; };
+    struct Position { float x; float y; };
 
-    struct Color { float r; float g; float b; float a; };
-    struct Point { Vertex v; Color color; };
+    struct Color { uint8_t r; uint8_t g; uint8_t b; uint8_t a; };
+    struct Vertex { Position v; Color color; };
 
 
     // 3) Create vertex buffer
@@ -86,9 +87,9 @@ void Graphics::drawTestTriangle() {
     /*    { { -0.5f, -0.5f}, {0,0,1,1} },*/
     /*}};*/
     std::array<Vertex, 3> vertices {
-        {{0.0f,  0.5f},
-            {0.5f, -0.5f},
-            {-0.5f, -0.5f}}
+        {{{0.0f,  0.5f}, {255, 0, 0, 0}},
+        {{0.5f, -0.5f},  {0, 255, 255, 0}},
+        {{-0.5f, -0.5f}, {0, 255, 255, 0}}}
     };
 
 
@@ -135,12 +136,12 @@ void Graphics::drawTestTriangle() {
     
     mWrl::ComPtr<ID3D11InputLayout> inputLayout {};
     D3D11_INPUT_ELEMENT_DESC layoutDesc[] {
-        { "Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-        /*{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },*/
+        { "Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "Color",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
     GFX_THROW_INFO(
-    device_->CreateInputLayout(layoutDesc, _countof(layoutDesc),
+    device_->CreateInputLayout(layoutDesc, std::size(layoutDesc),
                               vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout)
     );
     context_->IASetInputLayout(inputLayout.Get());

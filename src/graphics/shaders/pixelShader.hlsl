@@ -1,3 +1,3 @@
-float main() : SV_Target {
-    return float4 (1.f, 1.f, 1.f, 1.f);
+float4 main(float3 color : Color) : SV_Target {
+    return float4 (color, 1.0f);
 }

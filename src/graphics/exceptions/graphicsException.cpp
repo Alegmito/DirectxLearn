@@ -87,7 +87,7 @@ InfoException::InfoException( int line,const char * file,std::vector<std::string
  
  const char* InfoException::getType() const noexcept
  {
- 	return "Chili Graphics Info Exception";
+ 	return "Directx Graphics Info Exception";
  }
  
  std::string InfoException::getInfo() const noexcept
