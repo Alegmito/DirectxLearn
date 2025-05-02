@@ -14,7 +14,7 @@ public:
     virtual ~Graphics() {};
     void createEndFrame();
     void clearbuffer(float r, float g, float b) noexcept;
-    void drawTestTriangle();
+    void drawTestTriangle(float angle = 0.f);
 private:
     void throwGraphicsError(HRESULT hr);
     Microsoft::WRL::ComPtr<ID3D11Device> device_ {};

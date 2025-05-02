@@ -60,6 +60,6 @@ void App::Tick() {
     const float sinTime = sin(timer.peek()) / 2.0f + 0.5f;
     auto &graphics {window_.getGraphics()};
     graphics.clearbuffer(sinTime, sinTime, 1.0f);
-    graphics.drawTestTriangle();
+    graphics.drawTestTriangle(timer.peek());
     graphics.createEndFrame();
 }

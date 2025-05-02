@@ -73,7 +73,8 @@ Graphics::Graphics(HWND hWnd) {
     );
 }
 
-void Graphics::drawTestTriangle() {
+using ConstBuffer = std::array<std::array<float, 4>, 4>;
+void Graphics::drawTestTriangle(float angle) {
     struct Position { float x; float y; };
 
     struct Color { uint8_t r; uint8_t g; uint8_t b; uint8_t a; };
@@ -140,6 +141,30 @@ void Graphics::drawTestTriangle() {
     GFX_THROW_INFO(device_->CreateBuffer(&iBuffDescr, &iSubrscData, &indexBuffer));
 
     context_->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
+
+    // We need to create a constant buffer for the transformation matrix
+
+    const ConstBuffer constBuffer { {
+        {3.f / 4.f * static_cast<float>(cos(angle)),  static_cast<float>(sin(angle)),  0.f, 0.f}, 
+        {3.f / 4.f * static_cast<float>(-sin(angle)), static_cast<float>(cos(angle)),  0.f, 0.f},
+        {0.f,                                             0.f,                         1.f, 0.f},
+        {0.f,                                             0.f,                         0.f, 1.f}
+    } };
+    mWrl::ComPtr<ID3D11Buffer> comConstBuffer {};
+
+    D3D11_BUFFER_DESC constBufDescr {};
+    constBufDescr.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    constBufDescr.Usage = D3D11_USAGE_DYNAMIC;
+    constBufDescr.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    constBufDescr.ByteWidth = sizeof(constBuffer);
+    constBufDescr.MiscFlags = {};
+    constBufDescr.StructureByteStride = 0;
+    D3D11_SUBRESOURCE_DATA constBufSubSrcData {};
+    constBufSubSrcData.pSysMem = constBuffer.data();
+
+    GFX_THROW_INFO(device_->CreateBuffer(&constBufDescr, &constBufSubSrcData, &comConstBuffer));
+    context_->VSSetConstantBuffers(0u, 1u, comConstBuffer.GetAddressOf());
+    
 
     mWrl::ComPtr<ID3DBlob> vsBlob {}, psBlob {};
     // Have to create Vertex and Pixel shaders
