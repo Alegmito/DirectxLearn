@@ -86,11 +86,14 @@ void Graphics::drawTestTriangle() {
     /*    { {  0.5f, -0.5f}, {0,1,0,1} },*/
     /*    { { -0.5f, -0.5f}, {0,0,1,1} },*/
     /*}};*/
-    std::array<Vertex, 3> vertices {
-        {{{0.0f,  0.5f}, {255, 0, 0, 0}},
-        {{0.5f, -0.5f},  {0, 255, 255, 0}},
-        {{-0.5f, -0.5f}, {0, 255, 255, 0}}}
-    };
+    std::array<Vertex, 6> vertices { {
+        {{0.0f,  0.5f},  {255, 0, 0, 0}},
+        {{0.5f, -0.5f},  {0, 255, 0, 0}},
+        {{-0.5f, -0.5f}, {0, 0, 255, 0}},
+        {{-0.3f, 0.3f},  {0, 255, 0, 0}},
+        {{0.3f, 0.3f},   {0, 0, 255, 0}},
+        {{0.0f, 0.8f},   {255, 0, 0, 0}}
+    }};
 
 
     mWrl::ComPtr<ID3D11Buffer> vertexBuffer {};
@@ -114,6 +117,29 @@ void Graphics::drawTestTriangle() {
     const UINT strides {sizeof(Vertex)};
     const UINT offsets {};
     context_->IASetVertexBuffers({}, 1, vertexBuffer.GetAddressOf(), &strides, &offsets);
+
+    const std::array<uint16_t, 3 * 4> indices {
+        0, 1, 2,
+        0, 2, 3,
+        0, 4, 1,
+        2, 1, 5
+    };
+
+    mWrl::ComPtr<ID3D11Buffer> indexBuffer {};
+    auto iBuffDescr {D3D11_BUFFER_DESC {}};
+    iBuffDescr.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    iBuffDescr.Usage = D3D11_USAGE_DEFAULT;
+    iBuffDescr.CPUAccessFlags = {};
+    iBuffDescr.ByteWidth = sizeof(vertices);
+    iBuffDescr.MiscFlags = {};
+    iBuffDescr.StructureByteStride = sizeof(Vertex);
+
+    auto iSubrscData {D3D11_SUBRESOURCE_DATA {}};
+    iSubrscData.pSysMem = indices.data();
+
+    GFX_THROW_INFO(device_->CreateBuffer(&iBuffDescr, &iSubrscData, &indexBuffer));
+
+    context_->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
 
     mWrl::ComPtr<ID3DBlob> vsBlob {}, psBlob {};
     // Have to create Vertex and Pixel shaders
@@ -159,7 +185,7 @@ void Graphics::drawTestTriangle() {
     viewport.TopLeftY = 0;
     context_->RSSetViewports(1u, &viewport);
 
-    GFX_THROW_INFO_ONLY(context_->Draw(vertices.size(), 0u));
+    GFX_THROW_INFO_ONLY(context_->DrawIndexed(indices.size(), 0u, 0u));
 }
 
 void Graphics::clearbuffer (float r, float g, float b) noexcept {
