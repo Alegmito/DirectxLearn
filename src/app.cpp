@@ -2,8 +2,6 @@
 #include "window.h"
 #include <Windows.h>
 #include <cmath>
-#include <iomanip>
-#include <ios>
 #include <optional>
 #include <sstream>
 
@@ -60,6 +58,10 @@ void App::Tick() {
     const float sinTime = sin(timer.peek()) / 2.0f + 0.5f;
     auto &graphics {window_.getGraphics()};
     graphics.clearbuffer(sinTime, sinTime, 1.0f);
-    graphics.drawTestTriangle(timer.peek());
+    graphics.drawTestTriangle(
+        timer.peek(),
+        window_.mouse_.getState().x / 400.f - 1.f,
+        - window_.mouse_.getState().y / 300.f + 1.f
+    );
     graphics.createEndFrame();
 }

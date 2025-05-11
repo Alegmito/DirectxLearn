@@ -6,6 +6,7 @@
 #include <wrl/client.h>
 #include <d3dcompiler.h>
 #include <array>
+#include <DirectXMath.h>
 
 #define GFX_EXCEPT_NOINFO(hr) HResultException( __LINE__,__FILE__,hr )
 #define GFX_THROW_NOINFO(hrCall) if (FAILED(hrCall)) throw HResultException( __LINE__,__FILE__,hr )
@@ -28,6 +29,7 @@
 #endif
 
 namespace mWrl = Microsoft::WRL;
+namespace dx = DirectX;
 
 Graphics::Graphics(HWND hWnd) {
     DXGI_SWAP_CHAIN_DESC swapChainDesc {};
@@ -73,8 +75,8 @@ Graphics::Graphics(HWND hWnd) {
     );
 }
 
-using ConstBuffer = std::array<std::array<float, 4>, 4>;
-void Graphics::drawTestTriangle(float angle) {
+using ConstBuffer = dx::XMMATRIX;
+void Graphics::drawTestTriangle(float angle, float x, float y) {
     struct Position { float x; float y; };
 
     struct Color { uint8_t r; uint8_t g; uint8_t b; uint8_t a; };
@@ -144,12 +146,12 @@ void Graphics::drawTestTriangle(float angle) {
 
     // We need to create a constant buffer for the transformation matrix
 
-    const ConstBuffer constBuffer { {
-        {3.f / 4.f * static_cast<float>(cos(angle)),  static_cast<float>(sin(angle)),  0.f, 0.f}, 
-        {3.f / 4.f * static_cast<float>(-sin(angle)), static_cast<float>(cos(angle)),  0.f, 0.f},
-        {0.f,                                             0.f,                         1.f, 0.f},
-        {0.f,                                             0.f,                         0.f, 1.f}
-    } };
+    const ConstBuffer constBuffer { { dx::XMMatrixTranspose(
+        dx::XMMatrixRotationZ(angle)
+        * dx::XMMatrixScaling(3.f / 4.f, 1.f, 1.f)
+        * dx::XMMatrixTranslation(x, y, 0.f)
+    ) } };
+
     mWrl::ComPtr<ID3D11Buffer> comConstBuffer {};
 
     D3D11_BUFFER_DESC constBufDescr {};
@@ -160,7 +162,7 @@ void Graphics::drawTestTriangle(float angle) {
     constBufDescr.MiscFlags = {};
     constBufDescr.StructureByteStride = 0;
     D3D11_SUBRESOURCE_DATA constBufSubSrcData {};
-    constBufSubSrcData.pSysMem = constBuffer.data();
+    constBufSubSrcData.pSysMem = constBuffer.r;
 
     GFX_THROW_INFO(device_->CreateBuffer(&constBufDescr, &constBufSubSrcData, &comConstBuffer));
     context_->VSSetConstantBuffers(0u, 1u, comConstBuffer.GetAddressOf());
