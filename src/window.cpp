@@ -135,6 +135,7 @@ LRESULT Window::handleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             oss <<  "(" << points.x << "," << points.y << ")";
             SetWindowText(hWnd, oss.str().c_str());
             mouse_.onLeftPressed(points.x, points.y);
+            SetForegroundWindow(hWnd);
             break;
         }
         case WM_MOUSEMOVE: {

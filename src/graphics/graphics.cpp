@@ -1,6 +1,7 @@
 #include "graphics.h"
 #include "exceptions/graphicsException.h"
 #include <d3d11.h>
+#include <d3d9types.h>
 #include <d3dcommon.h>
 #include <dxgiformat.h>
 #include <wrl/client.h>
@@ -77,27 +78,21 @@ Graphics::Graphics(HWND hWnd) {
 
 using ConstBuffer = dx::XMMATRIX;
 void Graphics::drawTestTriangle(float angle, float x, float y) {
-    struct Position { float x; float y; };
+    struct Position { float x; float y; float z; };
 
-    struct Color { uint8_t r; uint8_t g; uint8_t b; uint8_t a; };
+    struct Color { float r; float g; float b; float a; };
     struct Vertex { Position v; Color color; };
 
-
-    // 3) Create vertex buffer
-    /*std::array<Vertex, 3> vertices {{*/
-    /*    { {  0.0f,  0.5f}, {1,0,0,1} },*/
-    /*    { {  0.5f, -0.5f}, {0,1,0,1} },*/
-    /*    { { -0.5f, -0.5f}, {0,0,1,1} },*/
-    /*}};*/
-    std::array<Vertex, 6> vertices { {
-        {{0.0f,  0.5f},  {255, 0, 0, 0}},
-        {{0.5f, -0.5f},  {0, 255, 0, 0}},
-        {{-0.5f, -0.5f}, {0, 0, 255, 0}},
-        {{-0.3f, 0.3f},  {0, 255, 0, 0}},
-        {{0.3f, 0.3f},   {0, 0, 255, 0}},
-        {{0.0f, 0.8f},   {255, 0, 0, 0}}
+    std::array<Position, 8> vertices {{
+        {-1.f, -1.f, -1.f},
+        {1.f, -1.f, -1.f},
+        {-1.f, 1.f, -1.f},
+        {1.f, 1.f, -1.f},
+        {-1.f, -1.f, 1.f},
+        {1.f, -1.f, 1.f},
+        {-1.f, 1.f, 1.f},
+        {1.f, 1.f, 1.f}
     }};
-
 
     mWrl::ComPtr<ID3D11Buffer> vertexBuffer {};
     auto buffDescr {D3D11_BUFFER_DESC {}};
@@ -106,36 +101,36 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
     buffDescr.CPUAccessFlags = {};
     buffDescr.ByteWidth = sizeof(vertices);
     buffDescr.MiscFlags = {};
-    buffDescr.StructureByteStride = sizeof(Vertex);
+    buffDescr.StructureByteStride = sizeof(Position);
 
     auto subrscData {D3D11_SUBRESOURCE_DATA {}};
     subrscData.pSysMem = vertices.data();
 
     HRESULT hr {};
-    GFX_THROW_INFO(
-    device_->CreateBuffer(&buffDescr, &subrscData, &vertexBuffer)
-    );
+    GFX_THROW_INFO(device_->CreateBuffer(&buffDescr, &subrscData, &vertexBuffer));
 
     // Bind vertex buffer to pipeline
-    const UINT strides {sizeof(Vertex)};
+    const UINT strides {sizeof(Position)};
     const UINT offsets {};
-    context_->IASetVertexBuffers({}, 1, vertexBuffer.GetAddressOf(), &strides, &offsets);
+    context_->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &strides, &offsets);
 
-    const std::array<uint16_t, 3 * 4> indices {
-        0, 1, 2,
-        0, 2, 3,
-        0, 4, 1,
-        2, 1, 5
+    const std::array<uint16_t, 3 * 2 * 6> indices {
+        0, 2, 1,  2, 3, 1,
+        1, 3, 5,  3, 7, 5,
+        2, 6, 3,  3, 6, 7,
+        4, 5, 7,  4, 7, 6,
+        0, 4, 2,  2, 4, 6,
+        0, 1, 4,  1, 5, 4
     };
 
     mWrl::ComPtr<ID3D11Buffer> indexBuffer {};
     auto iBuffDescr {D3D11_BUFFER_DESC {}};
-    iBuffDescr.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    iBuffDescr.BindFlags = D3D11_BIND_INDEX_BUFFER;
     iBuffDescr.Usage = D3D11_USAGE_DEFAULT;
     iBuffDescr.CPUAccessFlags = {};
-    iBuffDescr.ByteWidth = sizeof(vertices);
+    iBuffDescr.ByteWidth = sizeof(indices);
     iBuffDescr.MiscFlags = {};
-    iBuffDescr.StructureByteStride = sizeof(Vertex);
+    iBuffDescr.StructureByteStride = sizeof(uint16_t);
 
     auto iSubrscData {D3D11_SUBRESOURCE_DATA {}};
     iSubrscData.pSysMem = indices.data();
@@ -148,11 +143,12 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
 
     const ConstBuffer constBuffer { { dx::XMMatrixTranspose(
         dx::XMMatrixRotationZ(angle)
-        * dx::XMMatrixScaling(3.f / 4.f, 1.f, 1.f)
-        * dx::XMMatrixTranslation(x, y, 0.f)
+        * dx::XMMatrixRotationX(angle)
+        * dx::XMMatrixTranslation(x * 4, y * 4, 4.f)
+        * dx::XMMatrixPerspectiveLH(1.f, 3.f / 4.f, 0.5f, 10.f)
     ) } };
 
-    mWrl::ComPtr<ID3D11Buffer> comConstBuffer {};
+    mWrl::ComPtr<ID3D11Buffer> pConstBuffer {};
 
     D3D11_BUFFER_DESC constBufDescr {};
     constBufDescr.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -162,10 +158,35 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
     constBufDescr.MiscFlags = {};
     constBufDescr.StructureByteStride = 0;
     D3D11_SUBRESOURCE_DATA constBufSubSrcData {};
-    constBufSubSrcData.pSysMem = constBuffer.r;
+    constBufSubSrcData.pSysMem = &constBuffer;
 
-    GFX_THROW_INFO(device_->CreateBuffer(&constBufDescr, &constBufSubSrcData, &comConstBuffer));
-    context_->VSSetConstantBuffers(0u, 1u, comConstBuffer.GetAddressOf());
+    GFX_THROW_INFO(device_->CreateBuffer(&constBufDescr, &constBufSubSrcData, &pConstBuffer));
+    context_->VSSetConstantBuffers(0u, 1u, pConstBuffer.GetAddressOf());
+
+    const std::array<Color, 6> colorBuffer {{
+        {1.f, 0.f, 1.f, 0.f},
+        {1.f, 0.f, 0.f, 0.f},
+        {0.f, 1.f, 0.f, 0.f},
+        {0.f, 0.f, 1.f, 0.f},
+        {1.f, 1.f, 0.f, 0.f},
+        {0.f, 1.f, 1.f, 0.f},
+    }};
+
+
+    mWrl::ComPtr<ID3D11Buffer> pColorBuffer {};
+
+    D3D11_BUFFER_DESC colorBufDescr {};
+    colorBufDescr.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    colorBufDescr.Usage = D3D11_USAGE_DEFAULT;
+    colorBufDescr.CPUAccessFlags = 0;
+    colorBufDescr.ByteWidth = sizeof(colorBuffer);
+    colorBufDescr.MiscFlags = {};
+    colorBufDescr.StructureByteStride = 0;
+    D3D11_SUBRESOURCE_DATA colorBufSubSrcData {};
+    colorBufSubSrcData.pSysMem = colorBuffer.data();
+
+    GFX_THROW_INFO(device_->CreateBuffer(&colorBufDescr, &colorBufSubSrcData, &pColorBuffer));
+    context_->PSSetConstantBuffers(0u, 1u, pColorBuffer.GetAddressOf());
     
 
     mWrl::ComPtr<ID3DBlob> vsBlob {}, psBlob {};
@@ -189,8 +210,7 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
     
     mWrl::ComPtr<ID3D11InputLayout> inputLayout {};
     D3D11_INPUT_ELEMENT_DESC layoutDesc[] {
-        { "Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "Color",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
     GFX_THROW_INFO(
