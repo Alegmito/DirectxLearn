@@ -58,6 +58,7 @@ void App::Tick() {
     const float sinTime = sin(timer.peek()) / 2.0f + 0.5f;
     auto &graphics {window_.getGraphics()};
     graphics.clearbuffer(sinTime, sinTime, 1.0f);
+    graphics.drawTestTriangle(-timer.peek(), 0, 0);
     graphics.drawTestTriangle(
         timer.peek(),
         window_.mouse_.getState().x / 400.f - 1.f,

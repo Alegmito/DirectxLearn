@@ -29,7 +29,7 @@
 #define GFX_THROW_INFO_ONLY(call) (call)
 #endif
 
-namespace mWrl = Microsoft::WRL;
+namespace mw = Microsoft::WRL;
 namespace dx = DirectX;
 
 Graphics::Graphics(HWND hWnd) {
@@ -67,17 +67,51 @@ Graphics::Graphics(HWND hWnd) {
         &context_
     ));
 
-    mWrl::ComPtr<ID3D11Resource> backBuffer {};
+    mw::ComPtr<ID3D11Resource> backBuffer {};
     GFX_THROW_INFO(
         swap_->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer)
     );
     GFX_THROW_INFO(
         device_->CreateRenderTargetView(backBuffer.Get(), {}, &renderTargetView_)
     );
+
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc {};
+    depthStencilDesc.DepthEnable = TRUE;
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+    mw::ComPtr<ID3D11DepthStencilState> depthStencilState {};
+    GFX_THROW_INFO(device_->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
+
+    context_->OMSetDepthStencilState(depthStencilState.Get(), 1);
+
+    mw::ComPtr<ID3D11Texture2D> depthStencilTexture {};
+    D3D11_TEXTURE2D_DESC depthStencilTextureDesc {};
+    depthStencilTextureDesc.Width  = 800;
+    depthStencilTextureDesc.Height = 600;
+    depthStencilTextureDesc.MipLevels = 1;
+    depthStencilTextureDesc.ArraySize = 1;
+    depthStencilTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthStencilTextureDesc.SampleDesc.Count = 1;
+    depthStencilTextureDesc.SampleDesc.Quality = 0;
+    depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+    depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+    GFX_THROW_INFO(device_->CreateTexture2D(&depthStencilTextureDesc, nullptr, &depthStencilTexture));
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDepthStencilView {};
+    descDepthStencilView.Format = DXGI_FORMAT_D32_FLOAT;
+    descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDepthStencilView.Texture2D.MipSlice = 0;
+    GFX_THROW_INFO(
+        device_->CreateDepthStencilView(depthStencilTexture.Get(), &descDepthStencilView, &depthStencilView_)
+    );
+
+    context_->OMSetRenderTargets(1, renderTargetView_.GetAddressOf(), depthStencilView_.Get());
 }
 
 using ConstBuffer = dx::XMMATRIX;
-void Graphics::drawTestTriangle(float angle, float x, float y) {
+void Graphics::drawTestTriangle(float angle, float x, float z) {
     struct Position { float x; float y; float z; };
 
     struct Color { float r; float g; float b; float a; };
@@ -94,7 +128,7 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
         {1.f, 1.f, 1.f}
     }};
 
-    mWrl::ComPtr<ID3D11Buffer> vertexBuffer {};
+    mw::ComPtr<ID3D11Buffer> vertexBuffer {};
     auto buffDescr {D3D11_BUFFER_DESC {}};
     buffDescr.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     buffDescr.Usage = D3D11_USAGE_DEFAULT;
@@ -123,7 +157,7 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
         0, 1, 4,  1, 5, 4
     };
 
-    mWrl::ComPtr<ID3D11Buffer> indexBuffer {};
+    mw::ComPtr<ID3D11Buffer> indexBuffer {};
     auto iBuffDescr {D3D11_BUFFER_DESC {}};
     iBuffDescr.BindFlags = D3D11_BIND_INDEX_BUFFER;
     iBuffDescr.Usage = D3D11_USAGE_DEFAULT;
@@ -144,11 +178,11 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
     const ConstBuffer constBuffer { { dx::XMMatrixTranspose(
         dx::XMMatrixRotationZ(angle)
         * dx::XMMatrixRotationX(angle)
-        * dx::XMMatrixTranslation(x * 4, y * 4, 4.f)
+        * dx::XMMatrixTranslation(x * 4, 0, z + 4.f)
         * dx::XMMatrixPerspectiveLH(1.f, 3.f / 4.f, 0.5f, 10.f)
     ) } };
 
-    mWrl::ComPtr<ID3D11Buffer> pConstBuffer {};
+    mw::ComPtr<ID3D11Buffer> pConstBuffer {};
 
     D3D11_BUFFER_DESC constBufDescr {};
     constBufDescr.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -173,7 +207,7 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
     }};
 
 
-    mWrl::ComPtr<ID3D11Buffer> pColorBuffer {};
+    mw::ComPtr<ID3D11Buffer> pColorBuffer {};
 
     D3D11_BUFFER_DESC colorBufDescr {};
     colorBufDescr.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -189,16 +223,16 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
     context_->PSSetConstantBuffers(0u, 1u, pColorBuffer.GetAddressOf());
     
 
-    mWrl::ComPtr<ID3DBlob> vsBlob {}, psBlob {};
+    mw::ComPtr<ID3DBlob> vsBlob {}, psBlob {};
     // Have to create Vertex and Pixel shaders
-    mWrl::ComPtr<ID3D11VertexShader> vertexShader {};
+    mw::ComPtr<ID3D11VertexShader> vertexShader {};
     GFX_THROW_INFO( D3DReadFileToBlob(L"vertexShader.cso", &vsBlob));
     GFX_THROW_INFO(
         device_->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &vertexShader)
     );
     context_->VSSetShader(vertexShader.Get(), nullptr, 0u);
 
-    mWrl::ComPtr<ID3D11PixelShader> pixelShader {};
+    mw::ComPtr<ID3D11PixelShader> pixelShader {};
     GFX_THROW_INFO( D3DReadFileToBlob(L"pixelShader.cso", &psBlob));
     GFX_THROW_INFO(
         device_->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &pixelShader)
@@ -208,7 +242,7 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
     //
     // Define input layout
     
-    mWrl::ComPtr<ID3D11InputLayout> inputLayout {};
+    mw::ComPtr<ID3D11InputLayout> inputLayout {};
     D3D11_INPUT_ELEMENT_DESC layoutDesc[] {
         { "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
@@ -218,8 +252,6 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
                               vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout)
     );
     context_->IASetInputLayout(inputLayout.Get());
-
-    context_->OMSetRenderTargets(1u, renderTargetView_.GetAddressOf(), nullptr);
 
     context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     
@@ -238,7 +270,9 @@ void Graphics::drawTestTriangle(float angle, float x, float y) {
 void Graphics::clearbuffer (float r, float g, float b) noexcept {
     const float color[] = {r, g, b, 1.0f};
     context_->ClearRenderTargetView(renderTargetView_.Get(), color);
+    context_->ClearDepthStencilView(depthStencilView_.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 }
+
 
 void Graphics::createEndFrame() {
     HRESULT hr {};
