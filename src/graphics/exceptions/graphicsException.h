@@ -1,3 +1,4 @@
+#pragma once
 #include "../../exceptions/directxException.h"
 #include <vector>
 #include <windows.h>

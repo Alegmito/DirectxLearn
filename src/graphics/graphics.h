@@ -2,8 +2,10 @@
 #include <d3d11.h>
 #include <Windows.h>
 #include "../logger/dxgiLogger.h"
+#include "utils.hpp"
 #include <wrl.h>
 #include <wrl/client.h>
+#include <DirectXMath.h>
 
 class Graphics {
 public:
@@ -14,7 +16,7 @@ public:
     virtual ~Graphics() {};
     void createEndFrame();
     void clearbuffer(float r, float g, float b) noexcept;
-    void drawTestTriangle(float angle, float x, float z);
+    void DrawIndexed(UINT count) NOEXCEPT;
 
     ID3D11Device* getDevice() {return device_.Get();}
     ID3D11DeviceContext* getContext() {return context_.Get();}
@@ -34,6 +36,12 @@ private:
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView_ {};
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView_ {};
 
+public:
+    void SetProjection (DirectX::XMMATRIX projection) {projection_ = projection;}
+    DirectX::XMMATRIX GetProjection () {return projection_;};
+
+private:
+    DirectX::XMMATRIX projection_;
     
 #ifndef NDEBUG
     DxgiInfo infoManager_ {};

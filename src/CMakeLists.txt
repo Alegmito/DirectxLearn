@@ -32,7 +32,13 @@ target_sources(${PROJECT_NAME} PUBLIC
     graphics/shaders/vertexShader.hlsl
     logger/dxgiLogger.h
     logger/dxgiLogger.cpp
+    utils/utils.hpp
 )
+
+target_include_directories (${PROJECT_NAME} PUBLIC 
+    utils
+)
+
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -40,7 +46,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-add_subdirectory(./graphics/shaders)
+add_subdirectory(graphics)
 add_dependencies(${PROJECT_NAME} shaders)
 
 file (COPY resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -1,9 +1,13 @@
 #include "app.h"
 #include "window.h"
+#include <DirectXMath.h>
 #include <Windows.h>
 #include <cmath>
+#include <memory>
 #include <optional>
+#include <random>
 #include <sstream>
+#include "graphics/drawable/Box.h"
 
 void processMouse(Window &window) {
     const auto e {window.mouse_.Read()};
@@ -42,7 +46,21 @@ void processMouse(Window &window) {
 constexpr auto pClassName {"DirectX Learn"};
 App::App()
     : window_(800, 600, pClassName)
-{}
+{
+    std::mt19937 rng{std::random_device{}()};
+    std::uniform_real_distribution<float> adist{0.f, 3.1415f * 2.f},
+                                          ddist{0.f, 3.1415f * 2.f},
+                                          odist{0.f, 3.1415f * 0.3f},
+                                          rdist{6.f, 20.f} ;
+
+    for (size_t i = 0; i < 80; i++) {
+        boxes_.push_back(std::make_unique<Box>(
+            window_.getGraphics(), rng, adist, ddist, odist, rdist
+        ));
+    }
+
+    window_.getGraphics().SetProjection(DirectX::XMMatrixPerspectiveLH(1.f, 3.f / 4.f, 4.f, 50.f));
+}
 
 int App::Run() {
     for (std::optional<int> eCode {std::nullopt};;) {
@@ -51,18 +69,20 @@ int App::Run() {
     }
 }
 
+App::~App() {
+}
+
 void App::Tick() {
     // std::ostringstream oss {};
     // oss << "Delta time: "<< std::setprecision(2) << std::fixed << timer.peek() << "s";
     // window_.setTitle(oss.str());
     const float sinTime = sin(timer.peek()) / 2.0f + 0.5f;
     auto &graphics {window_.getGraphics()};
+    const auto deltaTime {timer.mark()};
     graphics.clearbuffer(sinTime, sinTime, 1.0f);
-    graphics.drawTestTriangle(-timer.peek(), 0, 0);
-    graphics.drawTestTriangle(
-        timer.peek(),
-        window_.mouse_.getState().x / 400.f - 1.f,
-        - window_.mouse_.getState().y / 300.f + 1.f
-    );
+    for (auto& box : boxes_) {
+        box->Update(deltaTime);
+        box->Draw(window_.getGraphics());
+    }
     graphics.createEndFrame();
 }
