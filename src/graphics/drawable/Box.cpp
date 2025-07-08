@@ -1,8 +1,7 @@
 #include "Box.h"
-#include "../exceptions/graphicsExMacros.h"
 #include <DirectXMath.h>
+#include <array>
 #include <memory>
-#include <numbers>
 #include <utility>
 #include "../bindable/buffers/VertexBuffer.h"
 #include "../bindable/buffers/ConstantBuffer.h"
@@ -63,11 +62,11 @@ Box::Box(
         0, 4, 2,  2, 4, 6,
         0, 1, 4,  1, 5, 4
     };
-    SetIndexBuffer(make_unique<IndexBuffer>(gfx, std::move(indices)));
+    SetIndexBuffer(make_unique<IndexBuffer>(gfx, indices));
 
 
 
-    const std::vector<Color> colorBuffer {{
+    const std::array<Color, 6> colorBuffer {{
         {1.f, 0.f, 1.f, 0.f},
         {1.f, 0.f, 0.f, 0.f},
         {0.f, 1.f, 0.f, 0.f},
@@ -98,8 +97,9 @@ void Box::Update(float deltaTime) noexcept {
 
 DirectX::XMMATRIX Box::GetTransformXM() const noexcept {
     using namespace DirectX;
-    return XMMatrixRotationRollPitchYaw(pitch_, yaw_, roll_)
-    * XMMatrixTranslation(r, 0, 0)
+    return 
+      XMMatrixRotationRollPitchYaw(pitch_, yaw_, roll_)
+    * XMMatrixTranslation(-r, 0, 0)
     * XMMatrixRotationRollPitchYaw(theta_, phi_, chi_)
     * XMMatrixTranslation(0, 0, 20)
     ;

@@ -1,4 +1,3 @@
-#include "../exceptions/graphicsException.h"
 #include "../exceptions/graphicsExMacros.h"
 #include "InputLayout.h"
 

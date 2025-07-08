@@ -8,7 +8,6 @@ TransformConstBuf::TransformConstBuf(Graphics& gfx, Box& box)
 
 void TransformConstBuf::Bind(Graphics &gfx) noexcept{
     using namespace DirectX;
-    vertexConstBuf_.Update(gfx, XMMatrixIdentity() * parent_.GetTransformXM());
-
+    vertexConstBuf_.Update(gfx, XMMatrixTranspose(parent_.GetTransformXM() * gfx.GetProjection()));
     vertexConstBuf_.Bind(gfx);
 }

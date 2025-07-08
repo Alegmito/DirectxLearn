@@ -4,7 +4,7 @@ void Drawable::Draw(Graphics &gfx) const {
     for (auto& bind: binds_) {
         bind->Bind(gfx);
     }
-    /*gfx.DrawIndexed(indexBuffer_->getCount());*/
+    gfx.DrawIndexed(indexBuffer_->GetCount());
 }
 
 void Drawable::AddBind(std::unique_ptr<IBindable> bind) noexcept{

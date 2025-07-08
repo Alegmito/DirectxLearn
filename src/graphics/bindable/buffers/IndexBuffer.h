@@ -6,8 +6,8 @@
 struct IndexBuffer : public IBindable {
     IndexBuffer(Graphics& gfx, const std::vector<uint16_t>& indices);
     void Bind(Graphics& gfx) noexcept override;
-    UINT GetCounT() const noexcept {return count_;}
+    UINT GetCount() const noexcept {return count_;}
 protected:
     UINT count_ {};
-    Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer {};
+    Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer_ {};
 };

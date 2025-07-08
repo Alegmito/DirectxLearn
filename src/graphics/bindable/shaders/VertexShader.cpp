@@ -1,5 +1,4 @@
 #include "VertexShader.h"
-#include "../../exceptions/graphicsException.h"
 #include "../../exceptions/graphicsExMacros.h"
 #include <d3dcompiler.h>
 

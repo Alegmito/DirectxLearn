@@ -1,5 +1,5 @@
 #ifdef NDEBUG
-#define NOEXCEPT
-#else
 #define NOEXCEPT noexcept
+#else
+#define NOEXCEPT
 #endif

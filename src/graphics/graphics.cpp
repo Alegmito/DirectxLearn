@@ -1,12 +1,10 @@
 #include "graphics.h"
-#include "exceptions/graphicsException.h"
 #include <d3d11.h>
 #include <d3d9types.h>
 #include <d3dcommon.h>
 #include <dxgiformat.h>
 #include <wrl/client.h>
 #include <d3dcompiler.h>
-#include <array>
 #include <DirectXMath.h>
 #include "exceptions/graphicsExMacros.h"
 

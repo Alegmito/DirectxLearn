@@ -59,7 +59,7 @@ App::App()
         ));
     }
 
-    window_.getGraphics().SetProjection(DirectX::XMMatrixPerspectiveLH(1.f, 3.f / 4.f, 4.f, 50.f));
+    window_.getGraphics().SetProjection(DirectX::XMMatrixPerspectiveLH(1.f, 3.f / 4.f, 0.4f, 50.f));
 }
 
 int App::Run() {

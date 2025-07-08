@@ -9,7 +9,6 @@ public:
     VertexBuffer(Graphics &gfx, const std::vector<V>& vertices)
     : stride_(sizeof(V)) {
         INFOMANAGER(gfx);
-        Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer {};
         auto buffDescr {D3D11_BUFFER_DESC {}};
         buffDescr.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         buffDescr.Usage = D3D11_USAGE_DEFAULT;
@@ -21,7 +20,7 @@ public:
         auto subrscData {D3D11_SUBRESOURCE_DATA {}};
         subrscData.pSysMem = vertices.data();
 
-        GFX_THROW_INFO(gfx.getDevice()->CreateBuffer(&buffDescr, &subrscData, &vertexBuffer));
+        GFX_THROW_INFO(gfx.getDevice()->CreateBuffer(&buffDescr, &subrscData, &vertexBuffer_));
     }
 	void Bind( Graphics& gfx ) noexcept override;
 
