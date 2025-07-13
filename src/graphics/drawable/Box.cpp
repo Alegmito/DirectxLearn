@@ -10,6 +10,7 @@
 #include "../bindable/InputLayout.h"
 #include "../bindable/Topology.h"
 #include "../bindable/TransformConstBuf.h"
+#include "Drawable.h"
 
 using namespace std;
 
@@ -20,8 +21,11 @@ Box::Box(
     uniform_real_distribution<float>& aDistrib,
     uniform_real_distribution<float>& dDistrib,
     uniform_real_distribution<float>& oDistrib,
-    uniform_real_distribution<float>& rDistrib
+    uniform_real_distribution<float>& rDistrib,
+    std::shared_ptr<SharedBinds> binds
 ) :
+    Drawable(binds),
+    gfx_ {gfx},
     r {rDistrib(rng)},
     theta_ {aDistrib(rng)},
     phi_ {aDistrib(rng)},
@@ -33,7 +37,9 @@ Box::Box(
     dtPhi_ {oDistrib(rng)},
     dtChi_ {oDistrib(rng)}
 {
+}
 
+void Box::AddSharedBinds() {
     vector<Position> vertices {{
         {-1.f, -1.f, -1.f},
         {1.f, -1.f, -1.f},
@@ -45,14 +51,14 @@ Box::Box(
         {1.f, 1.f, 1.f}
     }};
 
-    AddBind(make_unique<VertexBuffer>(gfx, vertices));
+    sharedBinds_->AddBind(make_unique<VertexBuffer>(gfx_, vertices));
 
-    auto vShader {make_unique<VertexShader>(gfx, u16string{u"vertexShader.cso"})};
+    auto vShader {make_unique<VertexShader>(gfx_, u16string{u"vertexShader.cso"})};
     ID3DBlob* vsBlob {vShader->getCodeBlob()};
-    AddBind(std::move(vShader));
+    sharedBinds_->AddBind(std::move(vShader));
 
-    auto pShader {make_unique<PixelShader>(gfx, u16string{u"pixelShader.cso"})};
-    AddBind(std::move(pShader));
+    auto pShader {make_unique<PixelShader>(gfx_, u16string{u"pixelShader.cso"})};
+    sharedBinds_->AddBind(std::move(pShader));
 
     vector<uint16_t> indices {
         0, 2, 1,  2, 3, 1,
@@ -62,9 +68,7 @@ Box::Box(
         0, 4, 2,  2, 4, 6,
         0, 1, 4,  1, 5, 4
     };
-    SetIndexBuffer(make_unique<IndexBuffer>(gfx, indices));
-
-
+    sharedBinds_->AddIndexBuf(make_unique<IndexBuffer>(gfx_, indices));
 
     const std::array<Color, 6> colorBuffer {{
         {1.f, 0.f, 1.f, 0.f},
@@ -74,16 +78,19 @@ Box::Box(
         {1.f, 1.f, 0.f, 0.f},
         {0.f, 1.f, 1.f, 0.f},
     }};
-    AddBind(make_unique<PixelConstantBuffer<typeof(colorBuffer)>>(gfx, colorBuffer));
-    
+    sharedBinds_->AddBind(make_unique<PixelConstantBuffer<typeof(colorBuffer)>>(gfx_, colorBuffer));
+
     const vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc {
         { "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
-    AddBind(make_unique<InputLayout>(gfx, vsBlob, layoutDesc));
+    sharedBinds_->AddBind(make_unique<InputLayout>(gfx_, vsBlob, layoutDesc));
 
-    AddBind(make_unique<Topology>(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+    sharedBinds_->AddBind(make_unique<Topology>(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+}
 
-    AddBind(make_unique<TransformConstBuf>(gfx, *this));
+void Box::AddLocalBinds() {
+    SetIndexBuffer(sharedBinds_->GetIndexBuf());
+    AddBind(make_unique<TransformConstBuf>(gfx_, *this));
 }
 
 void Box::Update(float deltaTime) noexcept {

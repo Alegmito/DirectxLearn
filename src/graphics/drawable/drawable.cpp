@@ -1,9 +1,11 @@
 #include "Drawable.h"
+#include <algorithm>
+#include <mutex>
 
 void Drawable::Draw(Graphics &gfx) const {
-    for (auto& bind: binds_) {
-        bind->Bind(gfx);
-    }
+    std::for_each(binds_.begin(), binds_.end(), [&] (auto& bind) {bind->Bind(gfx);});
+    std::for_each(sharedBinds_->binds_.begin(), sharedBinds_->binds_.end(), [&] (auto& bind) {bind->Bind(gfx);});
+
     gfx.DrawIndexed(indexBuffer_->GetCount());
 }
 
@@ -19,3 +21,14 @@ void Drawable::SetIndexBuffer(std::unique_ptr<IndexBuffer> iBuf) noexcept{
 }
 
 
+void Drawable::Init() {
+    {
+        auto lock {std::lock_guard<std::mutex> {sharedBinds_->GetMutex()}};
+
+        if (!sharedBinds_->IsInitialized()) {
+            AddSharedBinds();
+            sharedBinds_->SetIsInitialized(true);
+        }
+    }
+    AddLocalBinds();
+}

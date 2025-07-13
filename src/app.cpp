@@ -47,6 +47,10 @@ constexpr auto pClassName {"DirectX Learn"};
 App::App()
     : window_(800, 600, pClassName)
 {
+    auto sharedBindsMutex {std::make_shared<std::mutex>()};
+    auto boxSharedBinds {std::make_shared<SharedBinds>()};
+    boxSharedBinds->SetMutex(sharedBindsMutex);
+
     std::mt19937 rng{std::random_device{}()};
     std::uniform_real_distribution<float> adist{0.f, 3.1415f * 2.f},
                                           ddist{0.f, 3.1415f * 2.f},
@@ -55,8 +59,9 @@ App::App()
 
     for (size_t i = 0; i < 80; i++) {
         boxes_.push_back(std::make_unique<Box>(
-            window_.getGraphics(), rng, adist, ddist, odist, rdist
+            window_.getGraphics(), rng, adist, ddist, odist, rdist, boxSharedBinds
         ));
+        boxes_[i]->Init();
     }
 
     window_.getGraphics().SetProjection(DirectX::XMMatrixPerspectiveLH(1.f, 3.f / 4.f, 0.4f, 50.f));
@@ -73,9 +78,6 @@ App::~App() {
 }
 
 void App::Tick() {
-    // std::ostringstream oss {};
-    // oss << "Delta time: "<< std::setprecision(2) << std::fixed << timer.peek() << "s";
-    // window_.setTitle(oss.str());
     const float sinTime = sin(timer.peek()) / 2.0f + 0.5f;
     auto &graphics {window_.getGraphics()};
     const auto deltaTime {timer.mark()};

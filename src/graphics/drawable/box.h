@@ -1,5 +1,6 @@
 #pragma once
 #include "Drawable.h"
+#include "SharedBinds.hpp"
 #include <random>
 
 class Box : public Drawable {
@@ -10,11 +11,17 @@ public:
         std::uniform_real_distribution<float>& aDistrib,
         std::uniform_real_distribution<float>& dDistrib,
         std::uniform_real_distribution<float>& oDistrib,
-        std::uniform_real_distribution<float>& rDistrib
+        std::uniform_real_distribution<float>& rDistrib,
+        std::shared_ptr<SharedBinds> binds
     );
     void Update(float deltaTime) noexcept override;
     DirectX::XMMATRIX GetTransformXM() const noexcept override;
+protected:
+    void AddSharedBinds() override;
+    void AddLocalBinds() override;
+
 private:
+    Graphics& gfx_;
     float r {};
     // rotation around Object Center
     float roll_ {};
@@ -31,7 +38,6 @@ private:
     float dtTheta_ {};
     float dtPhi_ {};
     float dtChi_ {};
-
 };
 
 struct Position { float x; float y; float z; };
