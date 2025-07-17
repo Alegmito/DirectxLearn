@@ -1,5 +1,9 @@
 #pragma once
+#include "controls/keyboardController.h"
+#include "controls/mouseController.h"
+#include "/graphics/graphics.h"
 #include <Windows.h>
+#include <memory>
 #include <minwindef.h>
 #include <string_view>
 
@@ -19,10 +23,15 @@ private:
         HINSTANCE hInst_;
     };
 public:
-    Window(int width, int height, const char* name) noexcept;
+    Window(int width, int height, const char* name);
     ~Window();
     Window(const Window &) = delete;
     Window & operator=(const Window &) = delete;
+    KeyboardController keyboard_ {};
+    MouseController mouse_ {};
+    void setTitle(const std::string &title);
+    static std::optional<int> processMessage();
+    Graphics &getGraphics();
 private:
     static LRESULT CALLBACK handleMessageSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK handleMessageThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -31,4 +40,5 @@ private:
     int width_;
     int height_;
     HWND hWnd_;
+    std::unique_ptr<Graphics> graphics_;
 };
