@@ -11,3 +11,9 @@ target_sources ( ${PROJECT_NAME} PUBLIC
     shaders/PixelShader.cpp
     shaders/VertexShader.cpp
 )
+
+target_include_directories (${PROJECT_NAME} PRIVATE
+    buffers
+    shaders
+    .
+)

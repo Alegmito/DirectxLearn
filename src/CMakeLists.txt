@@ -33,10 +33,15 @@ target_sources(${PROJECT_NAME} PUBLIC
     logger/dxgiLogger.h
     logger/dxgiLogger.cpp
     utils/utils.hpp
+    utils/GraphicsUtils.hpp
 )
 
 target_include_directories (${PROJECT_NAME} PUBLIC 
     utils
+    controls
+    logger
+    exceptions
+    graphics
 )
 
 
