@@ -9,10 +9,11 @@
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
+                
                 "CMAKE_C_COMPILER": "clang.exe",
                 "CMAKE_CXX_COMPILER": "clang.exe",
-                "CMAKE_TOOLCHAIN_FILE": "D:/Programms/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "VCPKG_ROOT": "D:/Programms/vcpkg"
+                "CMAKE_TOOLCHAIN_FILE": "D:/programms/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_MANIFESTS": "ON"
             },
             "condition": {
                 "type": "equals",
@@ -31,7 +32,7 @@
             },
             "cacheVariables": { 
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON" // Generate compile_commands.json
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
         {
