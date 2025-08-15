@@ -42,7 +42,7 @@ target_include_directories (${PROJECT_NAME} PUBLIC
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE
-    kernel32.lib user32.lib gdi32.lib
+    kernel32.lib user32.lib gdi32.lib Microsoft::DirectXTK
     )
 endif()
 
