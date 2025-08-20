@@ -1,18 +1,20 @@
-#include "Box.h"
+#include "box.h"
 #include <DirectXMath.h>
 #include <array>
 #include <memory>
 #include <utility>
-#include "../bindable/buffers/VertexBuffer.h"
-#include "../bindable/buffers/ConstantBuffer.h"
-#include "../bindable/shaders/VertexShader.h"
-#include "../bindable/shaders/PixelShader.h"
-#include "../bindable/InputLayout.h"
-#include "../bindable/Topology.h"
-#include "../bindable/TransformConstBuf.h"
+#include "Cube.h"
+#include "VertexBuffer.h"
+#include "ConstantBuffer.h"
+#include "VertexShader.h"
+#include "PixelShader.h"
+#include "InputLayout.h"
+#include "Topology.h"
+#include "TransformConstBuf.h"
 #include "Drawable.h"
 
 using namespace std;
+namespace dx = DirectX;
 
 
 Box::Box(
@@ -22,11 +24,12 @@ Box::Box(
     uniform_real_distribution<float>& dDistrib,
     uniform_real_distribution<float>& oDistrib,
     uniform_real_distribution<float>& rDistrib,
-    std::shared_ptr<SharedBinds> binds
+    uniform_real_distribution<float>& bDistrib,
+    shared_ptr<SharedBinds> binds
 ) :
     Drawable(binds),
     gfx_ {gfx},
-    r {rDistrib(rng)},
+    r_ {rDistrib(rng)},
     theta_ {aDistrib(rng)},
     phi_ {aDistrib(rng)},
     chi_ {aDistrib(rng)},
@@ -37,21 +40,13 @@ Box::Box(
     dtPhi_ {oDistrib(rng)},
     dtChi_ {oDistrib(rng)}
 {
+    dx::XMStoreFloat3x3(&transform_, dx::XMMatrixScaling(1.f, 1.f, bDistrib(rng)));
 }
 
 void Box::AddSharedBinds() {
-    vector<Position> vertices {{
-        {-1.f, -1.f, -1.f},
-        {1.f, -1.f, -1.f},
-        {-1.f, 1.f, -1.f},
-        {1.f, 1.f, -1.f},
-        {-1.f, -1.f, 1.f},
-        {1.f, -1.f, 1.f},
-        {-1.f, 1.f, 1.f},
-        {1.f, 1.f, 1.f}
-    }};
-
-    sharedBinds_->AddBind(make_unique<VertexBuffer>(gfx_, vertices));
+    auto cube_model {Cube::Make<VertexPos>()};
+    sharedBinds_->AddBind(make_unique<VertexBuffer>(gfx_, cube_model.vertices_));
+    sharedBinds_->AddIndexBuf(make_unique<IndexBuffer>(gfx_, cube_model.indices_));
 
     auto vShader {make_unique<VertexShader>(gfx_, u16string{u"vertexShader.cso"})};
     ID3DBlob* vsBlob {vShader->getCodeBlob()};
@@ -60,23 +55,13 @@ void Box::AddSharedBinds() {
     auto pShader {make_unique<PixelShader>(gfx_, u16string{u"pixelShader.cso"})};
     sharedBinds_->AddBind(std::move(pShader));
 
-    vector<uint16_t> indices {
-        0, 2, 1,  2, 3, 1,
-        1, 3, 5,  3, 7, 5,
-        2, 6, 3,  3, 6, 7,
-        4, 5, 7,  4, 7, 6,
-        0, 4, 2,  2, 4, 6,
-        0, 1, 4,  1, 5, 4
-    };
-    sharedBinds_->AddIndexBuf(make_unique<IndexBuffer>(gfx_, indices));
-
     const std::array<Color, 6> colorBuffer {{
-        {1.f, 0.f, 1.f, 0.f},
+        {1.f, 1.f, 1.f, 0.f},
         {1.f, 0.f, 0.f, 0.f},
         {0.f, 1.f, 0.f, 0.f},
-        {0.f, 0.f, 1.f, 0.f},
         {1.f, 1.f, 0.f, 0.f},
-        {0.f, 1.f, 1.f, 0.f},
+        {0.f, 0.f, 1.f, 0.f},
+        {1.f, 0.f, 1.f, 0.f},
     }};
     sharedBinds_->AddBind(make_unique<PixelConstantBuffer<typeof(colorBuffer)>>(gfx_, colorBuffer));
 
@@ -105,8 +90,9 @@ void Box::Update(float deltaTime) noexcept {
 DirectX::XMMATRIX Box::GetTransformXM() const noexcept {
     using namespace DirectX;
     return 
-      XMMatrixRotationRollPitchYaw(pitch_, yaw_, roll_)
-    * XMMatrixTranslation(-r, 0, 0)
+      XMLoadFloat3x3(&transform_)
+    * XMMatrixRotationRollPitchYaw(pitch_, yaw_, roll_)
+    * XMMatrixTranslation(-r_, 0, 0)
     * XMMatrixRotationRollPitchYaw(theta_, phi_, chi_)
     * XMMatrixTranslation(0, 0, 20)
     ;

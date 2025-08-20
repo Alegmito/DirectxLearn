@@ -1,7 +1,7 @@
 #pragma once
 #include "controls/keyboardController.h"
 #include "controls/mouseController.h"
-#include "/graphics/graphics.h"
+#include "graphics.h"
 #include <Windows.h>
 #include <memory>
 #include <minwindef.h>

@@ -3,7 +3,7 @@
 #include "../../exceptions/graphicsException.h"
 #include <dxgiformat.h>
 
-IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<uint16_t>& indices) 
+IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<uint32_t>& indices) 
     : count_(indices.size())
 {
     INFOMANAGER(gfx);
@@ -11,9 +11,9 @@ IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<uint16_t>& indices)
     iBuffDescr.BindFlags = D3D11_BIND_INDEX_BUFFER;
     iBuffDescr.Usage = D3D11_USAGE_DEFAULT;
     iBuffDescr.CPUAccessFlags = {};
-    iBuffDescr.ByteWidth = static_cast<UINT>(count_ * sizeof(indices));
+    iBuffDescr.ByteWidth = static_cast<UINT>(count_ * sizeof(uint32_t));
     iBuffDescr.MiscFlags = {};
-    iBuffDescr.StructureByteStride = sizeof(uint16_t);
+    iBuffDescr.StructureByteStride = sizeof(uint32_t);
 
     auto iSubrscData {D3D11_SUBRESOURCE_DATA {}};
     iSubrscData.pSysMem = indices.data();
@@ -22,5 +22,5 @@ IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<uint16_t>& indices)
 };
 
 void IndexBuffer::Bind(Graphics& gfx) noexcept {
-    gfx.getContext()->IASetIndexBuffer(indexBuffer_.Get(), DXGI_FORMAT_R16_UINT, 0u);
+    gfx.getContext()->IASetIndexBuffer(indexBuffer_.Get(), DXGI_FORMAT_R32_UINT, 0u);
 }

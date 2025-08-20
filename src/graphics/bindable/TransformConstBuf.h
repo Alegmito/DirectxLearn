@@ -6,7 +6,7 @@
 
 class TransformConstBuf : public IBindable {
 public:
-    TransformConstBuf(Graphics& gfx, Box& box);
+    TransformConstBuf(Graphics& gfx, Drawable& shape);
     void Bind(Graphics& gfx) noexcept override;
 private:
     VertexConstantBuffer<DirectX::XMMATRIX> vertexConstBuf_;
