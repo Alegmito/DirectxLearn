@@ -33,16 +33,24 @@ target_sources(${PROJECT_NAME} PUBLIC
     logger/dxgiLogger.h
     logger/dxgiLogger.cpp
     utils/utils.hpp
+    utils/GraphicsUtils.hpp
 )
 
 target_include_directories (${PROJECT_NAME} PUBLIC 
     utils
+    controls
+    logger
+    exceptions
+    graphics
 )
 
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-    kernel32.lib user32.lib gdi32.lib Microsoft::DirectXTK
+    target_link_libraries(
+        ${PROJECT_NAME} PRIVATE
+        kernel32.lib
+        user32.lib
+        gdi32.lib
     )
 endif()
 

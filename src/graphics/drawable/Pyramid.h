@@ -1,19 +1,16 @@
 #pragma once
 #include "Drawable.h"
-#include "SharedBinds.hpp"
-#include <DirectXMath.h>
 #include <random>
 
-class Box : public Drawable {
+class Pyramid : public Drawable {
 public:
-    Box(
+    Pyramid(
         Graphics& gfx,
         std::mt19937& rng,
         std::uniform_real_distribution<float>& aDistrib,
         std::uniform_real_distribution<float>& dDistrib,
         std::uniform_real_distribution<float>& oDistrib,
         std::uniform_real_distribution<float>& rDistrib,
-        std::uniform_real_distribution<float>& bDistrib,
         std::shared_ptr<SharedBinds> binds
     );
     void Update(float deltaTime) noexcept override;
@@ -40,10 +37,4 @@ private:
     float dtTheta_ {};
     float dtPhi_ {};
     float dtChi_ {};
-    DirectX::XMFLOAT3X3 transform_ {};
 };
-
-struct Position { float x; float y; float z; };
-struct Color { float r; float g; float b; float a; };
-struct Vertex { DirectX::XMFLOAT3 pos; Color color; };
-struct VertexPos {DirectX::XMFLOAT3 pos;};

@@ -3,8 +3,12 @@
 #include <mutex>
 
 void Drawable::Draw(Graphics &gfx) const {
-    std::for_each(binds_.begin(), binds_.end(), [&] (auto& bind) {bind->Bind(gfx);});
-    std::for_each(sharedBinds_->binds_.begin(), sharedBinds_->binds_.end(), [&] (auto& bind) {bind->Bind(gfx);});
+    std::for_each(binds_.begin(), binds_.end(), [&] (auto& bind) {
+        bind->Bind(gfx);
+    });
+    std::for_each(sharedBinds_->binds_.begin(), sharedBinds_->binds_.end(), [&] (auto& bind) {
+        bind->Bind(gfx);
+    });
 
     gfx.DrawIndexed(indexBuffer_->GetCount());
 }

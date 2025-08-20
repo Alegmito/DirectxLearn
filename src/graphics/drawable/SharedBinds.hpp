@@ -7,6 +7,7 @@
 
 struct SharedBinds {
     SharedBinds() {};
+    SharedBinds(std::shared_ptr<std::mutex> mutex) : mutex_ {mutex} {};
 
     std::vector<std::unique_ptr<IBindable>> binds_ {};
 

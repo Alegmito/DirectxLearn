@@ -1,8 +1,8 @@
 #include "TransformConstBuf.h"
 #include <DirectXMath.h>
 
-TransformConstBuf::TransformConstBuf(Graphics& gfx, Box& box)
-    : vertexConstBuf_{gfx}, parent_(box)
+TransformConstBuf::TransformConstBuf(Graphics& gfx, Drawable& shape)
+    : vertexConstBuf_{gfx}, parent_(shape)
 {
 }
 
