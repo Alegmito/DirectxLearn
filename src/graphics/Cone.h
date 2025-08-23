@@ -31,7 +31,7 @@ public:
         const auto iCenter {vertices.size() - 1};
 
         vertices.emplace_back();
-        vertices.back().pos = {0.f, 0.f, -1.f};
+        vertices.back().pos = {0.f, 0.f, 1.f};
         const auto iTip {vertices.size() - 1};
 
         std::vector<uint32_t> indices {};

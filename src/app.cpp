@@ -93,23 +93,22 @@ ShapesFactory::ShapesFactory(Graphics & graphics)
 }
 
 std::unique_ptr<Drawable> ShapesFactory::operator()() {
-    // switch (typedist_(rng_)) {
-    //     case 0: {
-    //         return std::make_unique<Pyramid> (
-    //             graphics_, rng_, adist_, ddist_, odist_, rdist_, sharedBindsList_.at(0)
-    //         );
-    //     }
-    //     case 1: {
-    //         return std::make_unique<Box> (
-    //             graphics_, rng_, adist_, ddist_, odist_, rdist_, bdist_, sharedBindsList_.at(1)
-    //         );
-    //     }
-    //     case 2:
-    //         return std::make_unique<Melon> (
-    //             graphics_, rng_, adist_, ddist_, odist_, rdist_, latdist_, longdist_, sharedBindsList_.at(2)
-    //         );
-    //
-    // }
+    switch (typedist_(rng_)) {
+        case 0: {
+            return std::make_unique<Pyramid> (
+                graphics_, rng_, adist_, ddist_, odist_, rdist_, sharedBindsList_.at(0)
+            );
+        }
+        case 1: {
+            return std::make_unique<Box> (
+                graphics_, rng_, adist_, ddist_, odist_, rdist_, bdist_, sharedBindsList_.at(1)
+            );
+        }
+        case 2:
+            return std::make_unique<Melon> (
+                graphics_, rng_, adist_, ddist_, odist_, rdist_, latdist_, longdist_, sharedBindsList_.at(2)
+            );
+    }
     return std::make_unique<Box> (
         graphics_, rng_, adist_, ddist_, odist_, rdist_, bdist_, sharedBindsList_.at(1)
     );

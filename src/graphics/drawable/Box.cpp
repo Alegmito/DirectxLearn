@@ -48,20 +48,22 @@ void Box::AddSharedBinds() {
     sharedBinds_->AddBind(make_unique<VertexBuffer>(gfx_, cube_model.vertices_));
     sharedBinds_->AddIndexBuf(make_unique<IndexBuffer>(gfx_, cube_model.indices_));
 
-    auto vShader {make_unique<VertexShader>(gfx_, u16string{u"vertexShader.cso"})};
+    auto vShader {make_unique<VertexShader>(gfx_, u16string{u"ColorIndexVS.cso"})};
     ID3DBlob* vsBlob {vShader->getCodeBlob()};
     sharedBinds_->AddBind(std::move(vShader));
 
-    auto pShader {make_unique<PixelShader>(gfx_, u16string{u"pixelShader.cso"})};
+    auto pShader {make_unique<PixelShader>(gfx_, u16string{u"ColorIndexPS.cso"})};
     sharedBinds_->AddBind(std::move(pShader));
 
-    const std::array<Color, 6> colorBuffer {{
+    const std::array<Color, 8> colorBuffer {{
         {1.f, 1.f, 1.f, 0.f},
         {1.f, 0.f, 0.f, 0.f},
         {0.f, 1.f, 0.f, 0.f},
         {1.f, 1.f, 0.f, 0.f},
         {0.f, 0.f, 1.f, 0.f},
         {1.f, 0.f, 1.f, 0.f},
+        {0.f, 1.f, 1.f, 0.f},
+        {0.f, 0.f, 0.f, 0.f},
     }};
     sharedBinds_->AddBind(make_unique<PixelConstantBuffer<typeof(colorBuffer)>>(gfx_, colorBuffer));
 

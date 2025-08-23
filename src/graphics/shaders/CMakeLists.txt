@@ -1,9 +1,16 @@
 add_custom_target(shaders)
 
-set(HLSL_SHADER_FILES vertexShader.hlsl pixelShader.hlsl)
-set_source_files_properties(vertexShader.hlsl PROPERTIES ShaderType "vs")
+set(HLSL_SHADER_FILES 
+    ColorIndexPS.hlsl
+    ColorIndexVS.hlsl
+    ColorBlendPS.hlsl
+    ColorBlendVS.hlsl
+)
+set_source_files_properties(ColorIndexVS.hlsl PROPERTIES ShaderType "vs")
+set_source_files_properties(ColorIndexPS.hlsl PROPERTIES ShaderType "ps")
 
-set_source_files_properties(pixelShader.hlsl PROPERTIES ShaderType "ps")
+set_source_files_properties(ColorBlendVS.hlsl PROPERTIES ShaderType "vs")
+set_source_files_properties(ColorBlendPS.hlsl PROPERTIES ShaderType "ps")
 
 set_source_files_properties(${HLSL_SHADER_FILES} PROPERTIES ShaderModel "5_0")
 

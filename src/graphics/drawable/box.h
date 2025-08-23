@@ -45,5 +45,6 @@ private:
 
 struct Position { float x; float y; float z; };
 struct Color { float r; float g; float b; float a; };
-struct Vertex { DirectX::XMFLOAT3 pos; Color color; };
+struct UColor { uint8_t r; uint8_t g; uint8_t b; uint8_t a; };
+struct Vertex { DirectX::XMFLOAT3 pos; UColor color; };
 struct VertexPos {DirectX::XMFLOAT3 pos;};
