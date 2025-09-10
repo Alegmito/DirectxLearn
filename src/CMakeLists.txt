@@ -1,5 +1,6 @@
 add_executable(${PROJECT_NAME} WIN32)
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
 target_sources(${PROJECT_NAME} PUBLIC 
     window.h
     window.cpp
